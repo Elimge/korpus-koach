@@ -1,6 +1,6 @@
 // src/App.tsx
 
-import HomePage from "./pages/HomePage.tsx"
+import { Outlet } from 'react-router-dom';
 
 function App() {
   return (
