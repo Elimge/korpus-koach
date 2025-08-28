@@ -1,10 +1,33 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import './index.css'
-import App from './App.tsx'
+// src/main.tsx
 
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+
+import App from './App.tsx';
+import HomePage from './pages/HomePage.tsx';
+import './index.css';
+
+// Crear el enrutador
+const router = createBrowserRouter([
+  {
+    path: "/", // La ruta raíz 
+    element: <App />, // El comoponente que renderizará en esta ruta 
+    // Aquí estarán las rutas hijas (nested routes)
+    children: [
+      {
+        index: true, // Esto la hace ruta por defecto del padre
+        element: <HomePage /> 
+      },
+      // otra pagina por ejemplo
+      // { path: "settings", element: <SettingsPage /> }
+    ]
+  },
+]);
+
+ReactDOM.createRoot(document.getElementById('root')!).render(
+  <React.StrictMode> 
+    {/* En lugar de renderizar <App /> directamente, le pasamos nuestro enrutador */}
+    <RouterProvider router={router} />
+  </React.StrictMode>,
 )
