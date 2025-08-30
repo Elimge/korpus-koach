@@ -28,6 +28,29 @@ export class KorpusKoachDB extends Dexie {
         sets: 'id',
     });
   }
+
+  async addRoutine(name:string) {
+    try {
+      const newRoutine: Routine = {
+        id: crypto.randomUUID(), // Genera un ID único universal
+        name: name,
+        isActive: false, // Las nuevas rutinas no son activas por defecto 
+        days: [], // Empieza sin días de entrenamiento
+      };
+
+      // Usamos el método 'add' de Dexie para guardar el objeto en la tabla 'routines'.
+      // 'await' pausa la ejecución hasta que la operación de guardado se complete.
+      await this.routines.add(newRoutine);
+      console.log(`Rutina '${name} guardada con éxito.`);
+    } catch (error) {
+      console.error('Error al guardar la rutina: ', error);
+    }
+  }
+
+  async getAllRoutines() {
+    // .toArray() metodo de Dexie para recuperar los registros de una tabla
+    return await this.routines.toArray();
+  }
 }
 
 // Se crea una única instancia a la base de datos y se exporta.
