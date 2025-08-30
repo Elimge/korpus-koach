@@ -2,6 +2,7 @@
 
 // Importar el tipo de Routine desde el archivo de tipos
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import type { Routine } from '../types';
 import { db } from '../services/db';
 import CreateRoutineForm from '../components/CreateRoutineForm';
@@ -57,7 +58,11 @@ function HomePage() {
              ) : (
                 <ul>
                     {routines.map(routine => (
-                        <li key={routine.id}>{routine.name}</li>
+                        <li key={routine.id}>
+                            <Link to={`/routine/${routine.id}`}>
+                                {routine.name}
+                            </Link>
+                        </li>
                     ))}
                 </ul>
              )}
