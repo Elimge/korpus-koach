@@ -71,10 +71,32 @@ export class KorpusKoachDB extends Dexie {
         }
         routine.days.push(newDay);
       });
-      // también se puede usar modify() 
       console.log(`Día "${dayName}" añadido a la rutina ${routineId}`);
     } catch (error) { 
       console.error('Error al añadir el día de entrenamiento: ', error);
+    }
+  }
+
+  async addExerciseToDay(routineId: string, dayId: string, exerciseName: string) {
+    try {
+      const newExercise: Exercise = {
+        id: crypto.randomUUID(),
+        name: exerciseName,
+        sets: [], // Los ejercicios empiezan sin series definidas
+        restTime: 60, // Tiempo de descanso por defecto
+      };
+
+      await this.routines.where({ id: routineId }).modify(routine => {
+        // Encontramos el día especifico dentro de la rutina 
+        const day = routine.days.find(d => d.id === dayId);
+        if (day) {
+          // Si encontramos el día, le añadimos el nuevo ejercicio 
+          day.exercises.push(newExercise);
+        }
+      });
+      console.log(`Ejercicio "${exerciseName}" añadido al día ${dayId}`);
+    } catch (error) {
+      console.error('Error al añadir el ejercicio: ', error);
     }
   }
 }

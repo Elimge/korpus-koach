@@ -36,7 +36,11 @@ function RoutineDetailPage() {
             {routine.days.length > 0 ? (
                 <ul>
                     {routine.days.map(day => (
-                        <li key={day.id}>{day.name}</li>
+                        <li key={day.id}>
+                            <Link to={`/routine/${routine.id}/day/${day.id}`}>
+                            {day.name}
+                            </Link>
+                        </li>
                     ))}
                 </ul>
             ) : (
