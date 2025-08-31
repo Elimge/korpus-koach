@@ -7,6 +7,7 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import App from './App.tsx';
 import HomePage from './pages/HomePage.tsx';
 import RoutineDetailPage from './pages/RoutineDetailPage.tsx';
+import WorkoutDayPage from './pages/WorkoutDayPage.tsx';
 import './index.css';
 
 // Crear el enrutador
@@ -23,6 +24,10 @@ const router = createBrowserRouter([
       {
         path: "routine/:routineId", 
         element: <RoutineDetailPage />
+      },
+      {
+        path: "routine/:routineId/day/:dayId",
+        element: <WorkoutDayPage />
       }
       // otra pagina por ejemplo
       // { path: "settings", element: <SettingsPage /> }
