@@ -6,6 +6,7 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 
 import App from './App.tsx';
 import HomePage from './pages/HomePage.tsx';
+import RoutineDetailPage from './pages/RoutineDetailPage.tsx';
 import './index.css';
 
 // Crear el enrutador
@@ -19,6 +20,10 @@ const router = createBrowserRouter([
         index: true, // Esto la hace ruta por defecto del padre
         element: <HomePage /> 
       },
+      {
+        path: "routine/:routineId", 
+        element: <RoutineDetailPage />
+      }
       // otra pagina por ejemplo
       // { path: "settings", element: <SettingsPage /> }
     ]
