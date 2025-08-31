@@ -51,6 +51,31 @@ export class KorpusKoachDB extends Dexie {
     // .toArray() metodo de Dexie para recuperar los registros de una tabla
     return await this.routines.toArray();
   }
+
+  async getRoutineById(id: string) {
+    // metodo get de Dexie super eficiente para buscar por clave primaria.
+    return await this.routines.get(id);
+  }
+
+  async addWorkoutDayToRoutine(routineId: string, dayName: string) {
+    try { 
+      const newDay: WorkoutDay = {
+        id: crypto.randomUUID(),
+        name: dayName,
+        exercises: [],
+      }; 
+      // El metodo update de Dexie es para modificar un registro existente por su clave primaria. 
+      await this.routines.update(routineId, {
+        // modificamos la propiedad 'days' 
+        // Dexie.waitFor() para que la operación sea atómica.
+        days: Dexie.waitFor(this.routines.get(routineId).then(r => [...(r?.days || []), newDay]))
+      });
+      // también se puede usar modify() 
+      console.log(`Día "${dayName}" añadido a la rutina ${routineId}`);
+    } catch (error) { 
+      console.error('Error al añadir el día de entrenamiento: ', error);
+    }
+  }
 }
 
 // Se crea una única instancia a la base de datos y se exporta.
