@@ -64,11 +64,12 @@ export class KorpusKoachDB extends Dexie {
         name: dayName,
         exercises: [],
       }; 
-      // El metodo update de Dexie es para modificar un registro existente por su clave primaria. 
-      await this.routines.update(routineId, {
-        // modificamos la propiedad 'days' 
-        // Dexie.waitFor() para que la operación sea atómica.
-        days: Dexie.waitFor(this.routines.get(routineId).then(r => [...(r?.days || []), newDay]))
+      
+      await this.routines.where({ id:routineId }).modify(routine => {
+        if (!routine.days) {
+          routine.days = []; 
+        }
+        routine.days.push(newDay);
       });
       // también se puede usar modify() 
       console.log(`Día "${dayName}" añadido a la rutina ${routineId}`);
