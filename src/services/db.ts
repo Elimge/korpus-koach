@@ -2,7 +2,7 @@
 
 import Dexie, { type Table } from 'dexie'; 
 // Importamos los tipos para que la base de datos sepa que forma tienen los datos.
-import type { Routine, WorkoutDay, Exercise, WorkoutSet } from '../types';
+import type { Routine, WorkoutDay, Exercise, WorkoutSet, SetType } from '../types';
 
 export class KorpusKoachDB extends Dexie {
   // Las propiedades 'routines', 'days', etc., son las "tablas" de nuestra base de datos.
@@ -99,8 +99,39 @@ export class KorpusKoachDB extends Dexie {
       console.error('Error al añadir el ejercicio: ', error);
     }
   }
-}
+  
+  async addSetToExercise(
+    routineId: string,
+    dayId: string, 
+    exerciseId: string,
+    setData: Omit<WorkoutSet, 'id' | 'completed'>
+  ) { 
+    try {
+      const newSet: WorkoutSet = {
+        id: crypto.randomUUID(),
+        ...setData, // Copia las propiedades de setData (type, reps, weight)
+        completed: false,
+      }; 
 
+      await this.routines.where({ id: routineId }).modify(routine => {
+        const day = routine.days.find(d => d.id === dayId);
+        if (day) {
+          const exercise = day.exercises.find(e => e.id === exerciseId);
+          if (exercise) {
+            // Asegurar que el array de series exista
+            if (!exercise.sets) {
+              exercise.sets = [];
+            }
+            exercise.sets.push(newSet);
+          }
+        }
+      }); 
+      console.log(`Serie añadida al ejercicio ${exerciseId}`); 
+    } catch (error) {
+      console.error('Error al añadir la serie: ', error); 
+    } 
+  }
+}
 // Se crea una única instancia a la base de datos y se exporta.
 // Para que toda la aplicación use la misma conexión a la base de datos (Singleton).
 export const db = new KorpusKoachDB(); 

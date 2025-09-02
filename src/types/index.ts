@@ -3,6 +3,8 @@
 // Opciones en lugar de usar strings directamente
 export type SetType = 'Warm-up' | 'Normal' | 'Drop Set' | 'Failure'; 
 
+export const setTypes: SetType[] = ['Warm-up', 'Normal', 'Drop Set', 'Failure'];
+
 // Interface para describir la forma de un objeto 
 // Es como un plano paa los objetos de "series"
 export interface WorkoutSet {
