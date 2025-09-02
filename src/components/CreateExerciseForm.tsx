@@ -13,7 +13,7 @@ function CreateExerciseForm({ routineId, dayId, onExerciseCreated }: CreateExerc
     const [exerciseName, setExerciseName] = useState('');
 
     const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault():
+        e.preventDefault();
         if (!exerciseName.trim()) return;
 
         await db.addExerciseToDay(routineId, dayId, exerciseName);
