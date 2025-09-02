@@ -1,7 +1,7 @@
 // src/pages/RoutineDetailPage.tsx
 
 import { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import type { Routine } from '../types';
 import { db } from '../services/db';
 import CreateWorkoutDayForm from '../components/CreateWorkoutDayForm';
@@ -10,6 +10,7 @@ function RoutineDetailPage() {
     // Se usa useParams para obtener el objeto de parámetros.
     const { routineId } = useParams<{ routineId: string }>();
     const [routine, setRoutine] = useState<Routine | null>(null);
+    const navigate = useNavigate();
 
     const fetchRoutine = async () => {
         if (routineId) {
@@ -21,6 +22,20 @@ function RoutineDetailPage() {
     useEffect(() => {
         fetchRoutine();
     }, [routineId]);
+
+    const handleStartWorkout = async (dayId: string) => {
+        if (routineId) {
+            try {
+                // Se llama al servicio para crear la sesión 
+                const newSessionId = await db.startWorkoutSession(routineId, dayId);
+                // Se usa navigate para redirigir al usuario a la nueva página 
+                navigate(`/session/${newSessionId}`);
+            } catch (error) {
+                console.error('No se pudo iniciar la sesión: ', error); 
+                alert('Error al iniciar la sesión.');
+            }
+        }
+    };
 
     if (!routine) {
         return <div>Rutina no encontrada o cargando...</div>;
@@ -38,8 +53,11 @@ function RoutineDetailPage() {
                     {routine.days.map(day => (
                         <li key={day.id}>
                             <Link to={`/routine/${routine.id}/day/${day.id}`}>
-                            {day.name}
+                                {day.name}
                             </Link>
+                            <button onClick={() => handleStartWorkout(day.id)}>
+                                ¡Empezar Entrenamiento!
+                            </button>
                         </li>
                     ))}
                 </ul>
