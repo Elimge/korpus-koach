@@ -35,3 +35,23 @@ export interface Routine {
     isActive: boolean; 
 }
 
+// Hereda las propiedades de la plantilla (WorkouSet) pero añade los datos reales.
+export interface SessionSet extends WorkoutSet {
+    actualReps?: number; // Reps realmente hechas (opcional al principio) 
+    actualWeight?: number; // Peso realmente levantado (opcional al principio)
+    rpe?: number; // Rating of Perceived Exertion (opcional)
+}
+
+export interface SessionExercise extends Exercise {
+    sets: SessionSet[];
+}
+
+export interface WorkoutSession {
+    id: string; 
+    startTime: Date; // Cuando empezó la sesión 
+    endTime?: Date; // Cuando terminó (opcional)
+    routineId: string; // Referencia a la rutina original 
+    dayId: string; // Referencia al día original 
+    status: 'in progress' | 'completed';
+    exercises: SessionExercise[]; // Los ejercicios de esta sesión 
+}

@@ -9,6 +9,7 @@ import HomePage from './pages/HomePage.tsx';
 import RoutineDetailPage from './pages/RoutineDetailPage.tsx';
 import WorkoutDayPage from './pages/WorkoutDayPage.tsx';
 import './index.css';
+import WorkoutSessionPage from './pages/WorkoutSessionPage.tsx';
 
 // Crear el enrutador
 const router = createBrowserRouter([
@@ -28,6 +29,10 @@ const router = createBrowserRouter([
       {
         path: "routine/:routineId/day/:dayId",
         element: <WorkoutDayPage />
+      },
+      {
+        path: "session/:sessionId",
+        element: <WorkoutSessionPage />
       }
       // otra pagina por ejemplo
       // { path: "settings", element: <SettingsPage /> }

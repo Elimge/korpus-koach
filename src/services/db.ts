@@ -2,7 +2,7 @@
 
 import Dexie, { type Table } from 'dexie'; 
 // Importamos los tipos para que la base de datos sepa que forma tienen los datos.
-import type { Routine, WorkoutDay, Exercise, WorkoutSet, SetType } from '../types';
+import type { Routine, WorkoutDay, Exercise, WorkoutSet, SetType, WorkoutSession, SessionExercise } from '../types';
 
 export class KorpusKoachDB extends Dexie {
   // Las propiedades 'routines', 'days', etc., son las "tablas" de nuestra base de datos.
@@ -13,6 +13,7 @@ export class KorpusKoachDB extends Dexie {
   days!: Table<WorkoutDay, string>;
   exercises!: Table<Exercise, string>;
   sets!: Table<WorkoutSet, string>;
+  workoutSessions!: Table<WorkoutSession, string>;  
   // Se pueden añadir más tablas aquí a futuro
 
   constructor() {
@@ -23,9 +24,11 @@ export class KorpusKoachDB extends Dexie {
     this.version(1).stores({
         // Listar las tablas y saber como están indexadas
         routines: 'id, isActive',
-        days: 'id',
-        exercises: 'id',
-        sets: 'id',
+    });
+    // Se pasa de v1 a v2, Dexie maneja las migraciones
+    this.version(2).stores({
+      routines: 'id, isActive', 
+      workoutSessions: 'id, status' 
     });
   }
 
@@ -130,6 +133,39 @@ export class KorpusKoachDB extends Dexie {
     } catch (error) {
       console.error('Error al añadir la serie: ', error); 
     } 
+  }
+
+  async startWorkoutSession(routineId: string, dayId: string): Promise<string> {
+    const routine = await this.routines.get(routineId);
+    const dayTemplate = routine?.days.find(d => d.id === dayId);
+
+    if (!dayTemplate) {
+      throw new Error('Día de entrenamiento no encontrado.');
+    }
+
+    const sessionExercises: SessionExercise[] = dayTemplate.exercises.map(ex => ({ 
+      ...ex,
+      sets: ex.sets.map(set => ({
+        ...set,
+        // Inicialmente, los valores 'actuales' están indefinidos 
+        actualReps: undefined,
+        actualWeight: undefined,
+        rpe: undefined,
+        completed: false, // Ninguna serie está completada al inicio 
+      }))
+    })); 
+
+    const newSession: WorkoutSession = { 
+      id: crypto.randomUUID(),
+      startTime: new Date(),
+      status: 'in-progress',
+      routineId,
+      dayId,
+      exercises: sessionExercises,
+    };
+
+    await this.workoutSessions.add(newSession);
+    return newSession.id; // Devolvemos el ID de la sesión creada
   }
 }
 // Se crea una única instancia a la base de datos y se exporta.
