@@ -2,7 +2,7 @@
 
 import Dexie, { type Table } from 'dexie'; 
 // Importamos los tipos para que la base de datos sepa que forma tienen los datos.
-import type { Routine, WorkoutDay, Exercise, WorkoutSet, SetType, WorkoutSession, SessionExercise } from '../types';
+import type { Routine, WorkoutDay, Exercise, WorkoutSet, SetType, WorkoutSession, SessionExercise, SessionSet } from '../types';
 
 export class KorpusKoachDB extends Dexie {
   // Las propiedades 'routines', 'days', etc., son las "tablas" de nuestra base de datos.
@@ -167,7 +167,26 @@ export class KorpusKoachDB extends Dexie {
     await this.workoutSessions.add(newSession);
     return newSession.id; // Devolvemos el ID de la sesión creada
   }
+
+  async getWorkoutSessionById(id: string) {
+    return await this.workoutSessions.get(id);
+  }
+
+  // Partial<SessionSet> significa que el objeto 'setData' puede tener solo *algunas* de las propiedades de SessionSet
+  async updateSessionSet(sessionId: string, exerciseId: string, setId: string, setData: Partial<SessionSet>) {
+    await this.workoutSessions.where({ id: sessionId }).modify(session => {
+      const exercise = session.exercises.find(e => e.id === exerciseId); 
+      if (exercise) {
+        const set = exercise.sets.find(s => s.id === setId);
+        if (set) {
+          // Object.assign() fusiona los cambios de setData en el objeto 'set'
+          Object.assign(set, setData);
+        }
+      }
+    });
+  }
 }
+
 // Se crea una única instancia a la base de datos y se exporta.
 // Para que toda la aplicación use la misma conexión a la base de datos (Singleton).
 export const db = new KorpusKoachDB(); 
