@@ -6,9 +6,10 @@ import type { SessionSet } from '../types';
 interface SessionSetItemProps {
     set: SessionSet;
     onUpdate: (updatedData: Partial<SessionSet>) => void;
+    isTimerActive: boolean;
 }
 
-function SessionSetItem({ set, onUpdate }: SessionSetItemProps) {
+function SessionSetItem({ set, onUpdate, isTimerActive }: SessionSetItemProps) {
     // Estado local para los inputs, inicializando con los valores de la sesión 
     const [weight, setWeight] = useState(set.actualWeight ?? set.weight);
     const [reps, setReps] = useState(set.actualReps ?? set.reps);
@@ -39,7 +40,12 @@ function SessionSetItem({ set, onUpdate }: SessionSetItemProps) {
             />
             <span>reps</span>
             {!set.completed && (
-                <button onClick={handleMarkComplete}>Marcar</button>
+                <button 
+                    onClick={handleMarkComplete}
+                    disabled={isTimerActive}
+                >
+                    Marcar
+                </button>
             )}
         </li>
     );

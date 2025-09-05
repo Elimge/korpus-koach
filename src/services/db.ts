@@ -185,6 +185,38 @@ export class KorpusKoachDB extends Dexie {
       }
     });
   }
+
+  async finishWorkoutSession(sessionId: string) {
+    // Update solo para cambiar las propiedades que interesan
+    await this.workoutSessions.update(sessionId, {
+      status: 'completed',
+      endTime: new Date(),
+    });
+    console.log(`Sesión ${sessionId} finalizada`);
+  }
+
+  // Metodo para modificar la sesión no la plantilla de rutina
+  async addSetToSessionExercise(sessionId: string, exerciseId: string) {
+    try {
+      await this.workoutSessions.where({ id:sessionId }).modify(session => {
+        const exercise = session.exercises.find(e => e.id === exerciseId);
+        if (exercise) {
+          // La plantilla para la nueva serie, puede copiar la ultima o usar valores por defecto 
+          const lastSet = exercise.sets[exercise.sets.length - 1];
+          const newSet: SessionSet = {
+            id: crypto.randomUUID(),
+            type: lastSet?.type || 'Normal', // Copia el tipo de la última serie o usa "Normal"
+            reps: lastSet?.reps || 8,
+            weight: lastSet?.weight || 0,
+            completed: false,
+          };
+          exercise.sets.push(newSet);
+        }
+      });
+    } catch (error) {
+      console.error('Error al añadir la serie extra: ', error);
+    }
+  }
 }
 
 // Se crea una única instancia a la base de datos y se exporta.

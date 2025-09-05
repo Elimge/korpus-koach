@@ -5,10 +5,12 @@ import SessionSetItem from './SessionSetItem';
 
 interface SessionExerciseItemProps {
     exercise: SessionExercise;
-    onSetUpdate: (exerciseId: string, setId: string, updatedData: Partial<SessionSet>) => void; 
+    onSetUpdate: (exerciseId: string, setId: string, updatedData: Partial<SessionSet>) => void;
+    onAddSet: (exerciseId: string) => void;
+    isTimerActive: boolean;
 }
 
-function SessionExerciseItem({ exercise, onSetUpdate }: SessionExerciseItemProps) {
+function SessionExerciseItem({ exercise, onSetUpdate, onAddSet, isTimerActive }: SessionExerciseItemProps) {
     return (
         <details className='session-exercise' open>
             <summary>{exercise.name}</summary>
@@ -18,9 +20,13 @@ function SessionExerciseItem({ exercise, onSetUpdate }: SessionExerciseItemProps
                         key={set.id}
                         set={set}
                         onUpdate={(updatedData) => onSetUpdate(exercise.id, set.id, updatedData)}
+                        isTimerActive={isTimerActive}
                     />
                 ))}
             </ul>
+            <button className="add-set-button" onClick={() => onAddSet(exercise.id)}>
+                + Añadir Serie
+            </button>
         </details>
     );
 }
