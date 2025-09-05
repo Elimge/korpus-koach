@@ -2,7 +2,7 @@
 
 import Dexie, { type Table } from 'dexie'; 
 // Importamos los tipos para que la base de datos sepa que forma tienen los datos.
-import type { Routine, WorkoutDay, Exercise, ExerciseGroup, WorkoutSet, SetType, WorkoutSession, SessionExercise, SessionSet } from '../types';
+import type { Routine, WorkoutDay, Exercise, ExerciseGroup, WorkoutSet, WorkoutSession, SessionSet, SessionExerciseGroup } from '../types';
 
 export class KorpusKoachDB extends Dexie {
   // Las propiedades 'routines', 'days', etc., son las "tablas" de nuestra base de datos.

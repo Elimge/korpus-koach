@@ -1,6 +1,6 @@
 // src/components/ExerciseItem.tsx
 
-import type { ExerciseGroup, Exercise } from '../types';
+import type { ExerciseGroup } from '../types';
 import CreateSetForm from './CreateSetForm';
 
 interface ExerciseGroupItemProps {
