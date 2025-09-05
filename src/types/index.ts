@@ -22,10 +22,15 @@ export interface Exercise {
     restTime: number; // Tiempo de descanso en segundos 
 }
 
+export interface ExerciseGroup {
+    id: string;
+    exercises: Exercise[];
+}
+
 export interface WorkoutDay {
     id: string;
     name: string;
-    exercises: Exercise[];
+    groups: ExerciseGroup[];
 }
 
 export interface Routine {
@@ -46,6 +51,11 @@ export interface SessionExercise extends Exercise {
     sets: SessionSet[];
 }
 
+export interface SessionExerciseGroup {
+    id: string;
+    exercises: SessionExercise[];
+}
+
 export interface WorkoutSession {
     id: string; 
     startTime: Date; // Cuando empezó la sesión 
@@ -54,4 +64,5 @@ export interface WorkoutSession {
     dayId: string; // Referencia al día original 
     status: 'in progress' | 'completed';
     exercises: SessionExercise[]; // Los ejercicios de esta sesión 
+    groups: SessionExerciseGroup[];
 }
