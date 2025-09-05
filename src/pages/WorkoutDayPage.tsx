@@ -5,7 +5,7 @@ import { useParams, Link } from 'react-router-dom';
 import type { WorkoutDay } from '../types';
 import { db } from '../services/db';
 import CreateExerciseForm from '../components/CreateExerciseForm';
-import ExerciseItem from '../components/ExerciseItem';
+import ExerciseGroupItem from '../components/ExerciseGroupItem';
 
 function WorkoutDayPage() {
     // Para la URL Se esperan dos paramatros 
@@ -34,12 +34,12 @@ function WorkoutDayPage() {
             <Link to={`/routine/${routineId}`}>&larr; Volver a la Rutina</Link>
             <h2>{day.name}</h2>
 
-            {day.exercises.length > 0 ? (
+            {day.groups.length > 0 ? (
                 <div className='exercise-list'>
-                    {day.exercises.map(exercise => (
-                        <ExerciseItem
-                            key={exercise.id}
-                            exercise={exercise}
+                    {day.groups.map(group => (
+                        <ExerciseGroupItem
+                            key={group.id}
+                            group={group}
                             routineId={routineId!}
                             dayId={dayId!}
                             onDataChanged={fetchDay}

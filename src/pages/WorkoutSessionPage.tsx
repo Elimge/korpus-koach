@@ -1,11 +1,11 @@
 // src/pages/WorkoutSessionPage.tsx
 
-import { useEffect, useState } from 'react';
+import { useEffect, useOptimistic, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import type { WorkoutSession, SessionSet } from '../types';
 import { db } from '../services/db';
 import SessionExerciseItem from '../components/SessionExerciseItem';
-import ExerciseItem from '../components/ExerciseItem';
+import ExerciseGroupItem from '../components/ExerciseGroupItem';
 import RestTimer from '../components/RestTimer';
 import { useTimer } from '../hooks/useTimer';
 
@@ -30,35 +30,55 @@ function WorkoutSessionPage() {
 
     const handleSetUpdate = async (exerciseId: string, setId: string, updatedData: Partial<SessionSet>) => {
         // Guard
-        if (isTimerActive && updatedData.completed) return;
+        if ((isTimerActive && updatedData.completed) || !session) return;
 
-        if(!session) return;
-
+        let shouldStartTimer = false;
         let exerciseForTimer: SessionExercise | undefined;
 
         // Respuesta de UI instantánea 
-        const updatedExercises = session.exercises.map(ex => {
-            if (ex.id === exerciseId) {
-                exerciseForTimer = ex;
-                return {
-                    ...ex,
-                    sets: ex.sets.map(set => 
+        const updatedGroups = session.groups.map(group => ({
+            ...group,
+            exercises: group.exercises.map(ex => {
+                if (ex.id === exerciseId) {
+                    exerciseForTimer = ex; // Se guarda la referencia para el nombre y tiempo de descanso
+                    const updatedSets = ex.sets.map(set => 
                         set.id === setId ? { ...set, ...updatedData } : set
-                    ),
-                };
-            }
-            return ex; 
-        });
+                    );
+
+                    // --- LÓGICA DE SUPERSERIE ---
+                    if (updatedData.completed) {
+                        const setIndex = ex.sets.findIndex(s =>s.id === setId);
+                        const isSuperset = group.exercises.length > 1; 
+
+                        if (!isSuperset) {
+                            shouldStartTimer = true;
+                        } else {
+                            // Es una superserie. Verificamos si los otros ejercicios ya completaron esta ronda. 
+                            const allOthersCompleted = group.exercises
+                                .filter(otherEx => otherEx.id !== exerciseId)
+                                .every(otherEx => otherEx.sets[setIndex]?.completed);
+                            
+                            if (allOthersCompleted) {
+                                shouldStartTimer = true;
+                            }
+                        }
+                    }
+                    return { ...ex, sets:updatedSets };
+                }
+                return ex;
+            }) 
+        }));
+
         // Actualización optimista de la UI 
-        setSession({ ...session, exercises: updatedExercises });
+        setSession({ ...session, groups: updatedGroups });
     
-        if (updatedData.completed && exerciseForTimer) {
+        if (shouldStartTimer && exerciseForTimer) {
             setTimerExerciseName(exerciseForTimer.name);
             startTimer(exerciseForTimer.restTime);
         }
 
         await db.updateSessionSet(session.id, exerciseId, setId, updatedData);
-    }
+    };
 
     const handleAddSet = async (exerciseId: string) => {
         if (!session) return;
@@ -89,16 +109,20 @@ function WorkoutSessionPage() {
             <h1>Modo Gimnasio</h1>
             <p>Iniciada: {new Date(session.startTime).toLocaleTimeString()}</p>
 
-            {session.exercises.map(exercise => (
-                <SessionExerciseItem
-                    key={exercise.id}
-                    exercise={exercise}
-                    onSetUpdate={handleSetUpdate}
-                    onAddSet={handleAddSet}
-                    isTimerActive={isTimerActive}
-                />
-            ))}
 
+            {session.groups.map(group => (
+                <div key={group.id} className='exercise.group'>
+                    {group.exercises.map(exercise => (
+                        <SessionExerciseItem
+                            key={exercise.id}
+                            exercise={exercise}
+                            onSetUpdate={handleSetUpdate}
+                            onAddSet={handleAddSet}
+                            isTimerActive={isTimerActive}
+                        />
+                    ))}
+                </div>
+            ))}
             {isTimerActive && (
                 <RestTimer remainingTime={remainingTime} exerciseName={timerExerciseName} />
             )}
