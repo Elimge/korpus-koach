@@ -62,7 +62,6 @@ export interface WorkoutSession {
     endTime?: Date; // Cuando terminó (opcional)
     routineId: string; // Referencia a la rutina original 
     dayId: string; // Referencia al día original 
-    status: 'in progress' | 'completed';
-    exercises: SessionExercise[]; // Los ejercicios de esta sesión 
+    status: 'in-progress' | 'completed';
     groups: SessionExerciseGroup[];
 }

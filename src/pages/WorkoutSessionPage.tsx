@@ -1,11 +1,10 @@
 // src/pages/WorkoutSessionPage.tsx
 
-import { useEffect, useOptimistic, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import type { WorkoutSession, SessionSet } from '../types';
+import type { WorkoutSession, SessionSet, SessionExercise } from '../types';
 import { db } from '../services/db';
 import SessionExerciseItem from '../components/SessionExerciseItem';
-import ExerciseGroupItem from '../components/ExerciseGroupItem';
 import RestTimer from '../components/RestTimer';
 import { useTimer } from '../hooks/useTimer';
 
