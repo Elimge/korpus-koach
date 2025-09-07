@@ -35,10 +35,12 @@ export class KorpusKoachDB extends Dexie {
     this.version(3).upgrade(tx => {
       // tx.table('routines') da acceso a la tabla para modificarla.
       // .toCollection()modify() nos permite iterar sobre cada rutina guardada. 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       return tx.table('routines').toCollection().modify((routine:any) => {
         // 'routine' aquí es una rutina con la estructura antigua.
         // Verificamos si tiene la propiedad 'days' y si necesita migración.
         if (routine.days && routine.days.length > 0) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           routine.days.forEach((day: any) => {
             // Si el día tiene 'exercises' pero no 'groups', necesita migración.
             if (day.exercises && !day.groups) {
