@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { db } from '../services/db';
 import type { BodyWeightEntry } from '../types';
 import AddBodyWeightForm from '../components/AddBodyWeightForm';
+import BodyWeightChart  from '../components/charts/BodyWeightChart';
 
 function DataPage() {
     const [history, setHistory] = useState<BodyWeightEntry[]>([]);
@@ -21,6 +22,17 @@ function DataPage() {
             <h2>Mi Progreso</h2>
 
             <AddBodyWeightForm onWeightAdded={fetchData} />
+
+            <hr />
+
+            {history.length > 1 ? (
+                <>
+                    <h3>Evolución del Peso Corporal</h3>
+                    <BodyWeightChart data={history} /> 
+                </>
+            ) : (
+                <p>Necesitas al menos dos registros para ver un gráfico de evolución.</p>
+            )}
 
             <h3>Historial de Peso Corporal</h3>
             {history.length > 0 ? (
