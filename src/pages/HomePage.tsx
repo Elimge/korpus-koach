@@ -38,6 +38,9 @@ import CreateRoutineForm from '../components/CreateRoutineForm';
 function HomePage() {
     // Estado para guardar la lista de rutinas que vienen de la BD 
     const [routines, setRoutines] = useState<Routine[]>([]);
+     const [editingRoutineId, setEditingRoutineId] = useState<string | null>(null);
+     const [editingName, setEditingName] = useState('');
+
     const fetchRoutines = async () => {
         const allRoutines = await db.getAllRoutines();
         setRoutines(allRoutines);
@@ -47,6 +50,24 @@ function HomePage() {
     useEffect(() => {
         fetchRoutines();
     }, []); // El array vacío es para ejecutar una sola vez 
+
+    const handleDeleteRoutine = async (id: string) => {
+        if (window.confirm('¿Seguro que quieres eliminar esta rutina y todo su historial? Esta acción es irreversible.')) {
+            await db.deleteRoutine(id);
+            fetchRoutines(); // Refresca la lista
+        }
+    };
+
+    const handleEditClick = (routine: Routine) => {
+        setEditingRoutineId(routine.id);
+        setEditingName(routine.name);
+    };
+
+    const handleSaveClick = async (id: string) => {
+        await db.updateRoutineName(id, editingName);
+        setEditingRoutineId(null); // Salir del modo edición 
+        fetchRoutines(); 
+    }
 
     return (
         <div>
@@ -59,9 +80,27 @@ function HomePage() {
                 <ul>
                     {routines.map(routine => (
                         <li key={routine.id}>
-                            <Link to={`/routine/${routine.id}`}>
+                            {editingRoutineId === routine.id ? (
+                                <>
+                                    <input 
+                                        type='text'
+                                        value={editingName}
+                                        onChange={(e) => setEditingName(e.target.value)}
+                                        autoFocus
+                                    />
+                                    <button onClick={() => handleSaveClick(routine.id)}>Guardar</button>
+                                    <button onClick={() => setEditingRoutineId(null)}>Cancelar</button>
+                                </>
+                            ) : (
+                                <>
+                                    <Link to={`/routine/${routine.id}`}>{routine.name}</Link>
+                                    <button onClick={() => handleEditClick(routine)}>Editar</button>
+                                    <button onClick={() => handleDeleteRoutine(routine.id)}>Eliminar</button>
+                                </>
+                            )}
+                            {/* <Link to={`/routine/${routine.id}`}>
                                 {routine.name}
-                            </Link>
+                            </Link> */}
                         </li>
                     ))}
                 </ul>

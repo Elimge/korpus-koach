@@ -62,6 +62,13 @@ export class KorpusKoachDB extends Dexie {
       // Indexado por 'date' para ordenar las entradas cronológicamente de forma eficiente.
       bodyWeights: 'id, date'
     });
+    // Nueva versión para modificar la tabla de rutina
+    this.version(5).stores({
+        routines: 'id, isActive',
+        // Se añade 'routineId' a la lista de índices.
+        workoutSessions: 'id, status, routineId',
+        bodyWeights: 'id, date' 
+    });
   }
 
   async addRoutine(name:string) {
@@ -272,6 +279,35 @@ export class KorpusKoachDB extends Dexie {
     // .orderBy('date') para obtener los datos ya ordenados desde la BD, más eficiente que por js.
     return await this.bodyWeights.orderBy('date').toArray();
   } 
+
+  async updateRoutineName(routineId: string, newName: string): Promise<void> {
+    await this.routines.update(routineId, { name: newName });
+  }
+
+  async deleteRoutine(routineId:string): Promise<void> {
+    // Transacción para asegruar que ambas operaciones se completen con éxito o ninguna lo haga (borrar rutina y sus sesiones)
+    await this.transaction('rw', this.routines, this.workoutSessions, async () => {
+      await this.routines.delete(routineId);
+      // Eliminar todas las sesiones de entrenamiento asociadas a esta rutina.
+      await this.workoutSessions.where({ routineId }).delete();
+    });
+  }
+
+  async updateWorkoutDayName(routineId: string, dayId: string, newName: string): Promise<void> {
+    await this.routines.where({ id: routineId }).modify(routine => {
+      const day = routine.days.find( d => d.id === dayId);
+      if (day) {
+        day.name = newName;
+      }
+    });
+  }
+
+  async deleteWorkoutDay(routineId: string, dayId: string): Promise<void> {
+    await this.routines.where({ id: routineId }).modify(routine => {
+      // .filter() crea un nuevo array con todos los días excepto el que se elimina 
+      routine.days = routine.days.filter(d => d.id !== dayId);
+    })
+  }
 }
 
 // Se crea una única instancia a la base de datos y se exporta.
