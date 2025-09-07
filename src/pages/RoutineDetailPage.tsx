@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import type { Routine } from '../types';
+import type { Routine, WorkoutDay } from '../types';
 import { db } from '../services/db';
 import CreateWorkoutDayForm from '../components/CreateWorkoutDayForm';
 
@@ -10,6 +10,8 @@ function RoutineDetailPage() {
     // Se usa useParams para obtener el objeto de parámetros.
     const { routineId } = useParams<{ routineId: string }>();
     const [routine, setRoutine] = useState<Routine | null>(null);
+    const [editingDayId, setEditingDayId] = useState<string | null>(null);
+    const [editingDayName, setEditingDayName] = useState('');
     const navigate = useNavigate();
 
     const fetchRoutine = async () => {
@@ -37,6 +39,26 @@ function RoutineDetailPage() {
         }
     };
 
+    const handleDeleteDay = async (dayId: string) => {
+        if (routineId && window.confirm('¿Seguro que quieres eliminar este día de entrenamiento?')) {
+            await db.deleteWorkoutDay(routineId, dayId);
+            fetchRoutine();
+        }
+    };
+
+    const handleEditDayClick = (day: WorkoutDay) => {
+        setEditingDayId(day.id);
+        setEditingDayName(day.name);
+    };
+
+    const handleSaveDayClick = async (dayId: string) => {
+        if (routineId) {
+            await db.updateWorkoutDayName(routineId, dayId, editingDayName);
+            setEditingDayId(null);
+            fetchRoutine();
+        }
+    };
+
     if (!routine) {
         return <div>Rutina no encontrada o cargando...</div>;
     }
@@ -52,12 +74,30 @@ function RoutineDetailPage() {
                 <ul>
                     {routine.days.map(day => (
                         <li key={day.id}>
-                            <Link to={`/routine/${routine.id}/day/${day.id}`}>
+                            {editingDayId === day.id ? (
+                                <>
+                                    <input
+                                        type='text'
+                                        value={editingDayName}
+                                        onChange={(e) => setEditingDayName(e.target.value)}
+                                        autoFocus
+                                    /> 
+                                    <button onClick={() => handleSaveDayClick(day.id)}>Guardar</button>
+                                    <button onClick={() => setEditingDayId(null)}>Cancelar</button>
+                                </>
+                            ) : (
+                                <>
+                                    <Link to={`/routine/${routine.id}/day/${day.id}`}>{day.name}</Link>
+                                    <button onClick={() => handleEditDayClick(day)}>Editar</button>
+                                    <button onClick={() => handleDeleteDay(day.id)}>Eliminar</button>
+                                </>
+                            )}
+                            {/* <Link to={`/routine/${routine.id}/day/${day.id}`}>
                                 {day.name}
                             </Link>
                             <button onClick={() => handleStartWorkout(day.id)}>
                                 ¡Empezar Entrenamiento!
-                            </button>
+                            </button> */}
                         </li>
                     ))}
                 </ul>
