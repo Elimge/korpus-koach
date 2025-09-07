@@ -65,3 +65,9 @@ export interface WorkoutSession {
     status: 'in-progress' | 'completed';
     groups: SessionExerciseGroup[];
 }
+
+export interface BodyWeightEntry {
+    id: string;
+    date: Date;
+    weight: number;
+}
