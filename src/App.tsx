@@ -1,6 +1,6 @@
 // src/App.tsx
 
-import { Outlet } from 'react-router-dom';
+import { Outlet, NavLink } from 'react-router-dom';
 
 function App() {
   return (
@@ -12,6 +12,11 @@ function App() {
           {/* Aquí iría un componente de Navegación en el futuro */}
         </header>
 
+        <nav>
+            <NavLink to="/">Mis Rutinas</NavLink>
+            <NavLink to="/progress">Mi Progreso</NavLink>
+        </nav>
+
         <main>
           {/* Outlet es el marcador de posición. React Router reemplazará
             este componente por el que corresponda a la ruta actual.
@@ -19,9 +24,9 @@ function App() {
           <Outlet />
         </main>
 
-        <footer>
+        {/* <footer>
           <p>Pie de pagina de la app.</p>
-        </footer>
+        </footer> */}
     </div>
   )
 }

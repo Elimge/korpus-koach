@@ -2,7 +2,7 @@
 
 import Dexie, { type Table } from 'dexie'; 
 // Importamos los tipos para que la base de datos sepa que forma tienen los datos.
-import type { Routine, WorkoutDay, Exercise, ExerciseGroup, WorkoutSet, WorkoutSession, SessionSet, SessionExerciseGroup } from '../types';
+import type { Routine, WorkoutDay, Exercise, ExerciseGroup, WorkoutSet, WorkoutSession, SessionSet, SessionExerciseGroup, BodyWeightEntry } from '../types';
 
 export class KorpusKoachDB extends Dexie {
   // Las propiedades 'routines', 'days', etc., son las "tablas" de nuestra base de datos.
@@ -14,6 +14,7 @@ export class KorpusKoachDB extends Dexie {
   exercises!: Table<Exercise, string>;
   sets!: Table<WorkoutSet, string>;
   workoutSessions!: Table<WorkoutSession, string>;  
+  bodyWeights!: Table<BodyWeightEntry, string>; 
   // Se pueden añadir más tablas aquí a futuro
 
   constructor() {
@@ -53,6 +54,11 @@ export class KorpusKoachDB extends Dexie {
           });
         }
       });
+    });
+    // versión 4: Se añade la tabla de peso corporal 
+    this.version(4).stores({
+      // Indexado por 'date' para ordenar las entradas cronológicamente de forma eficiente.
+      bodyWeights: 'id, date'
     });
   }
 
@@ -249,6 +255,21 @@ export class KorpusKoachDB extends Dexie {
       console.error('Error al añadir la serie extra: ', error);
     }
   }
+
+  async addBodyWeight(weight: number): Promise<void> {
+    const newEntry: BodyWeightEntry = {
+      id: crypto.randomUUID(),
+      date: new Date(),
+      weight: weight,
+    };
+    await this.bodyWeights.add(newEntry);
+    console.log(`Peso corporal ${weight} kg registrado`);
+  }
+
+  async getBodyWeightHistory(): Promise<BodyWeightEntry[]> {
+    // .orderBy('date') para obtener los datos ya ordenados desde la BD, más eficiente que por js.
+    return await this.bodyWeights.orderBy('date').toArray();
+  } 
 }
 
 // Se crea una única instancia a la base de datos y se exporta.
