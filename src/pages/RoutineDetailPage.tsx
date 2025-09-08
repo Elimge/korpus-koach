@@ -88,16 +88,13 @@ function RoutineDetailPage() {
                             ) : (
                                 <>
                                     <Link to={`/routine/${routine.id}/day/${day.id}`}>{day.name}</Link>
-                                    <button onClick={() => handleEditDayClick(day)}>Editar</button>
-                                    <button onClick={() => handleDeleteDay(day.id)}>Eliminar</button>
+                                    <div>
+                                        <button onClick={() => handleStartWorkout(day.id)}>¡Empezar Entrenamiento!</button>
+                                        <button onClick={() => handleEditDayClick(day)}>Editar</button>
+                                        <button onClick={() => handleDeleteDay(day.id)}>Eliminar</button>
+                                    </div>
                                 </>
                             )}
-                            {/* <Link to={`/routine/${routine.id}/day/${day.id}`}>
-                                {day.name}
-                            </Link>
-                            <button onClick={() => handleStartWorkout(day.id)}>
-                                ¡Empezar Entrenamiento!
-                            </button> */}
                         </li>
                     ))}
                 </ul>

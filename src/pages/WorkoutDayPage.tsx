@@ -11,6 +11,9 @@ function WorkoutDayPage() {
     // Para la URL Se esperan dos paramatros 
     const { routineId, dayId } = useParams<{ routineId: string, dayId: string }>();
     const [day, setDay] = useState<WorkoutDay | null>(null);
+    const [editingExerciseId, setEditingExerciseId] = useState<string | null>(null);
+    const [editingExName, setEditingExName] = useState('');
+    const [editingExRest, setEditingExRest] = useState(60);
 
     const fetchDay = async () => {
         if (routineId) {
@@ -25,6 +28,32 @@ function WorkoutDayPage() {
         fetchDay();
     }, [routineId, dayId]); // El efecto depende de ambos IDs
 
+    const handleEditExerciseClick = (exercise: Exercise) => {
+        setEditingExerciseId(exercise.id);
+        setEditingExName(exercise.name);
+        setEditingExRest(exercise.restTime);
+    };
+
+    const handleCancelEdit = () => {
+        setEditingExerciseId(null);
+    };
+
+    const handleSaveExercise = async (exerciseId: string) => {
+        if (!routineId || !dayId) return;
+        await db.updateExercise(routineId, dayId, exerciseId, {
+                name: editingExName,
+                restTime: editingExRest,                
+        });
+        setEditingExerciseId(null);
+        fetchDay();
+    };
+
+    const handleDeleteExercise = async (exerciseId: string) => {
+        if (!routineId || !dayId || !window.confirm('¿Seguro que quieres eliminar este ejercicio?')) return;
+        await db.deleteExercise(routineId, dayId, exerciseId);
+        fetchDay();
+    }
+
     if (!day) {
         return <div>Día no encontrado o cargando...</div>
     }
@@ -34,7 +63,7 @@ function WorkoutDayPage() {
             <Link to={`/routine/${routineId}`}>&larr; Volver a la Rutina</Link>
             <h2>{day.name}</h2>
 
-            {day.groups.length > 0 ? (
+            {(day.groups && day.groups.length > 0) ? (
                 <div className='exercise-list'>
                     {day.groups.map(group => (
                         <ExerciseGroupItem
@@ -42,6 +71,15 @@ function WorkoutDayPage() {
                             group={group}
                             routineId={routineId!}
                             dayId={dayId!}
+                            editingExerciseId={editingExerciseId}
+                            editingExName={editingExName}
+                            editingExRest={editingExRest}
+                            onNameChange={setEditingExName}
+                            onRestChange={setEditingExRest}
+                            onEditClick={handleEditExerciseClick}
+                            onSaveClick={handleSaveExercise}
+                            onCancelClick={handleCancelEdit}
+                            onDeleteClick={handleDeleteExercise}
                             onDataChanged={fetchDay}
                         />
                     ))}
