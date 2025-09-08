@@ -308,6 +308,38 @@ export class KorpusKoachDB extends Dexie {
       routine.days = routine.days.filter(d => d.id !== dayId);
     })
   }
+
+  async updateExercise(routineId: string, dayId: string, exerciseId: string, updates: Partial<{ name: string; restTime: number }>): Promise<void> {
+    await this.routines.where({ id: routineId }).modify(routine => {
+      const day = routine.days.find(d => d.id === dayId);
+      if (day?.groups) {
+        // Se busca el ejercicio en todos los grupos del día 
+        day.groups.forEach(group => {
+          const exercise = group.exercises.find(e => e.id === exerciseId);
+          if (exercise) {
+            // Object.assign fusiona los nuevos valores con el objeto existente.
+            Object.assign(exercise, updates);
+          }
+        });
+      }
+    });
+  }
+
+  async deleteExercise(routineId: string, dayId: string, exerciseId: string): Promise<void> {
+    await this.routines.where({ id: routineId }).modify(routine => {
+      const day = routine.days.find(d => d.id === dayId);
+      if (day?.groups) {
+        // Se mapea cada grupo filtrando el ejercicio a eliminar su lista interna 
+        const updateGroups = day.groups.map(group => ({
+          ...group,
+          exercises: group.exercises.filter(e => e.id !== exerciseId)
+        }));
+
+        // Se filtra de nuevo para eliminar cualquier grupo que haya quedado vacío-
+        day.groups = updateGroups.filter(group => group.exercises.length > 0);
+      }
+    });
+  }
 }
 
 // Se crea una única instancia a la base de datos y se exporta.
