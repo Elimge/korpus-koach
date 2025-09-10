@@ -340,6 +340,37 @@ export class KorpusKoachDB extends Dexie {
       }
     });
   }
+
+  async updateSetInTemplate(routineId:string, dayId: string, exerciseId: string, setId: string, updates: Partial<Omit<WorkoutSet, 'id' | 'completed'>>): Promise<void> {
+    await this.routines.where({ id: routineId }).modify(routine => {
+      const day = routine.days.find(d => d.id === dayId);
+      if (day?.groups) {
+        day.groups.forEach(group => {
+          const exercise = group.exercises.find(e => e.id === exerciseId);
+          if (exercise?.sets) {
+            const set = exercise.sets.find(s => s.id === setId);
+            if (set) {
+              Object.assign(set,  updates);
+            }
+          }
+        });
+      }
+    });
+  }
+
+  async deleteSetInTemplate(routineId: string, dayId: string, exerciseId: string, setId: string): Promise<void> {
+    await this.routines.where({ id: routineId }).modify(routine => {
+      const day = routine.days.find(d => d.id === dayId);
+      if (day?.groups) {
+        day.groups.forEach(group => {
+          const exercise = group.exercises.find(e => e.id === exerciseId);
+          if (exercise) {
+            exercise.sets = exercise.sets.filter(s => s.id !== setId);
+          }
+        });
+      }
+    });
+  }
 }
 
 // Se crea una única instancia a la base de datos y se exporta.
