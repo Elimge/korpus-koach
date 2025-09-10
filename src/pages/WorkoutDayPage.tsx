@@ -6,6 +6,7 @@ import type { WorkoutDay } from '../types';
 import { db } from '../services/db';
 import CreateExerciseForm from '../components/CreateExerciseForm';
 import ExerciseGroupItem from '../components/ExerciseGroupItem';
+import toast from 'react-hot-toast';
 
 function WorkoutDayPage() {
     // Para la URL Se esperan dos paramatros 
@@ -49,9 +50,36 @@ function WorkoutDayPage() {
     };
 
     const handleDeleteExercise = async (exerciseId: string) => {
-        if (!routineId || !dayId || !window.confirm('¿Seguro que quieres eliminar este ejercicio?')) return;
-        await db.deleteExercise(routineId, dayId, exerciseId);
-        fetchDay();
+        toast((t) => (
+            <span>
+                ¿Eliminar este ejercicio?
+                <button
+                    onClick={() => {
+                        toast.dismiss(t.id); // Cierra esta notificación
+                        // toast.promise para manejar la operación de borrado
+                        toast.promise(
+                           (async () => {
+                                if (!routineId || !dayId) throw new Error('IDs no encontrados.')
+                                await db.deleteExercise(routineId, dayId, exerciseId);
+                                await fetchDay();
+                            })(),  // La operación a ejecutar 
+                            {
+                                loading: 'Eliminando...', // Mensaje mientras la promesa está pendiente
+                                success: 'Ejercicio eliminado.', // Mensaje si la promesa se resuelve
+                                error: 'No se pudo eliminar',   // Mensaje si la promesa es rechazada
+                            }
+                        );
+                    }}
+                    style={{ marginLeft: '10px'}}
+                >
+                    Confirmar
+                </button>
+            </span>
+        ));
+        
+        // if (!routineId || !dayId || !window.confirm('¿Seguro que quieres eliminar este ejercicio?')) return;
+        // await db.deleteExercise(routineId, dayId, exerciseId);
+        // fetchDay();
     }
 
     if (!day) {

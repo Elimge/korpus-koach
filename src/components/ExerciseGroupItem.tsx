@@ -4,6 +4,7 @@ import type { ExerciseGroup, Exercise, WorkoutSet } from '../types';
 import CreateSetForm from './CreateSetForm';
 import TemplateSetItem from './TemplateSetItem';
 import { db } from '../services/db';
+import toast from 'react-hot-toast';
 
 interface ExerciseGroupItemProps {
     group: ExerciseGroup;
@@ -43,10 +44,32 @@ function ExerciseGroupItem({
                 };
 
                 const handleDeleteSet = async (setId: string) => {
-                    if (window.confirm("¿Seguro que quieres eliminar esta serie?")) {
-                        await db.deleteSetInTemplate(routineId, dayId, exercise.id, setId);
-                        await onDataChanged();
-                    }
+                    toast((t) => (
+                        <span>
+                            ¿Eliminar este set?
+                            <button
+                                onClick={() => {
+                                    toast.dismiss(t.id); // Cierra esta notificación
+                                    // toast.promise para manejar la operación de borrado
+                                    toast.promise(
+                                        db.deleteSetInTemplate(routineId, dayId, exercise.id, setId).then(() => onDataChanged()), // La operación a ejecutar 
+                                        {
+                                            loading: 'Eliminando...', // Mensaje mientras la promesa está pendiente
+                                            success: 'Set eliminado.', // Mensaje si la promesa se resuelve
+                                            error: 'No se pudo eliminar',   // Mensaje si la promesa es rechazada
+                                        }
+                                    );
+                                }}
+                                style={{ marginLeft: '10px' }}
+                            >
+                                Confirmar
+                            </button>
+                        </span>
+                    ));
+                    // if (window.confirm("¿Seguro que quieres eliminar esta serie?")) {
+                    //     await db.deleteSetInTemplate(routineId, dayId, exercise.id, setId);
+                    //     await onDataChanged();
+                    // }
                 };
 
                 return (
@@ -92,7 +115,7 @@ function ExerciseGroupItem({
                                             ))}
                                         </ul>
                                     ) : (
-                                        <p>No hay series definidas para este ejercicio.</p> )}
+                                        <p>No hay series definidas para este ejercicio.</p>)}
                                     <CreateSetForm
                                         routineId={routineId}
                                         dayId={dayId}

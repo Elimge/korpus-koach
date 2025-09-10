@@ -5,6 +5,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import type { Routine, WorkoutDay } from '../types';
 import { db } from '../services/db';
 import CreateWorkoutDayForm from '../components/CreateWorkoutDayForm';
+import toast from 'react-hot-toast';
 
 function RoutineDetailPage() {
     // Se usa useParams para obtener el objeto de parámetros.
@@ -40,10 +41,36 @@ function RoutineDetailPage() {
     };
 
     const handleDeleteDay = async (dayId: string) => {
-        if (routineId && window.confirm('¿Seguro que quieres eliminar este día de entrenamiento?')) {
-            await db.deleteWorkoutDay(routineId, dayId);
-            fetchRoutine();
-        }
+        toast((t) => (
+            <span>
+                ¿Eliminar este día de entrenamiento y sus ejercicios?
+                <button
+                    onClick={() => {
+                        toast.dismiss(t.id); // Cierra esta notificación
+                        // toast.promise para manejar la operación de borrado
+                        toast.promise(
+                           (async () => {
+                                if (!routineId) throw new Error("ID de rutina no encontrado.")
+                                await db.deleteWorkoutDay(routineId, dayId);
+                                await fetchRoutine();
+                            })(),  // La operación a ejecutar 
+                            {
+                                loading: 'Eliminando...', // Mensaje mientras la promesa está pendiente
+                                success: 'Día de entrenamiento eliminado.', // Mensaje si la promesa se resuelve
+                                error: 'No se pudo eliminar',   // Mensaje si la promesa es rechazada
+                            }
+                        );
+                    }}
+                    style={{ marginLeft: '10px'}}
+                >
+                    Confirmar
+                </button>
+            </span>
+        ));
+        // if (routineId && window.confirm('¿Seguro que quieres eliminar este día de entrenamiento?')) {
+        //     await db.deleteWorkoutDay(routineId, dayId);
+        //     fetchRoutine();
+        // }
     };
 
     const handleEditDayClick = (day: WorkoutDay) => {

@@ -1,12 +1,15 @@
 // src/App.tsx
 
 import { Outlet, NavLink } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
 
 function App() {
   return (
     <div>
       {/* Aquí podríamos poner elementos que se repiten en todas las páginas,
           como una barra de navegación o un encabezado */}
+        <Toaster position='bottom-center' /> 
+        
         <header>
           <h1>Korpus Koach</h1>
           {/* Aquí iría un componente de Navegación en el futuro */}

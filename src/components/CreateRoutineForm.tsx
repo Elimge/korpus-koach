@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { db } from '../services/db';
+import toast from 'react-hot-toast';
 
 interface CreateRoutineFormProps {
     onRoutineCreated: () => void; // Es una función que no devuelve nada
@@ -18,7 +19,7 @@ function CreateRoutineForm({ onRoutineCreated }: CreateRoutineFormProps) {
         if (!routineName.trim()) return;
 
         await db.addRoutine(routineName);
-
+        toast.success('Rutina creada con éxito.');
         onRoutineCreated();
 
         // Limpiar el input después de enviar
