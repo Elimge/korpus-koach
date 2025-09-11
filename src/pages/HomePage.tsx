@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom';
 import type { Routine } from '../types';
 import { db } from '../services/db';
 import CreateRoutineForm from '../components/CreateRoutineForm';
+import toast from 'react-hot-toast'; 
 
 // Dato de prueba (mock data)
 // const mockActiveRoutine: Routine = {
@@ -52,10 +53,38 @@ function HomePage() {
     }, []); // El array vacío es para ejecutar una sola vez 
 
     const handleDeleteRoutine = async (id: string) => {
-        if (window.confirm('¿Seguro que quieres eliminar esta rutina y todo su historial? Esta acción es irreversible.')) {
-            await db.deleteRoutine(id);
-            fetchRoutines(); // Refresca la lista
-        }
+        toast((t) => (
+            <span>
+                ¿Eliminar esta rutina y su historial?
+                <button
+                    onClick={() => {
+                        toast.dismiss(t.id); // Cierra esta notificación
+                        // toast.promise para manejar la operación de borrado
+                        toast.promise(
+                           (async () => {
+                                if (!id) throw new Error('ID de rutina no encontrado.')
+                                await db.deleteRoutine(id);
+                                await fetchRoutines();
+                            })(),  // La operación a ejecutar 
+                            {
+                                loading: 'Eliminando...', // Mensaje mientras la promesa está pendiente
+                                success: 'Rutina eliminada.', // Mensaje si la promesa se resuelve
+                                error: 'No se pudo eliminar.',   // Mensaje si la promesa es rechazada
+                            }
+                        );
+                    
+                    }}
+                    style={{ marginLeft: '10px'}}
+                >
+                    Confirmar
+                </button>
+            </span>
+        ));
+        
+        // if (window.confirm('¿Seguro que quieres eliminar esta rutina y todo su historial? Esta acción es irreversible.')) {
+        //     await db.deleteRoutine(id);
+        //     fetchRoutines(); // Refresca la lista
+        // }
     };
 
     const handleEditClick = (routine: Routine) => {

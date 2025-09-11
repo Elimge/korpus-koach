@@ -7,6 +7,7 @@ import { db } from '../services/db';
 import SessionExerciseItem from '../components/SessionExerciseItem';
 import RestTimer from '../components/RestTimer';
 import { useTimer } from '../hooks/useTimer';
+import toast from 'react-hot-toast';
 
 
 function WorkoutSessionPage() {
@@ -92,12 +93,39 @@ function WorkoutSessionPage() {
     };
 
     const handleFinishWorkout = async () => {
-        if (session && window.confirm('¿Seguro que quieres finalizar el entrenamiento?')) {
-            await db.finishWorkoutSession(session.id); 
-            alert('¡Entrenamiento finalizado! Buen trabajo.');
-            navigate('/'); // Redirigir al usuario a la página de inicio 
-        }
+        toast((t) => (
+            <span>
+                ¿Seguro que quieres finalizar el entrenamiento?
+                <button 
+                    onClick={() => {
+                        toast.dismiss(t.id); // Cierra esta notificación
+                        // 3. Usamos toast.promise para manejar la operación de borrado
+                        toast.promise(
+                           (async () => {
+                                if (!session?.id) throw new Error('ID de sesión no encontrado.')
+                                await db.finishWorkoutSession(session.id);
+                                navigate('/');
+                            })(),  // La operación a ejecutar 
+                            {
+                                loading: 'Finalizando sesión...', // Mensaje mientras la promesa está pendiente
+                                success: '¡Entrenamiento finalizado! Buen trabajo.', // Mensaje si la promesa se resuelve
+                                error: 'No se pudo finalizar.',   // Mensaje si la promesa es rechazada
+                            }
+                        );
+                        
+                    }}
+                    style={{ marginLeft: '10px' }}
+                >
+                    Confirmar
+                </button>
+            </span>
+        ));
     };
+        // if (session && window.confirm('¿Seguro que quieres finalizar el entrenamiento?')) {
+        //     await db.finishWorkoutSession(session.id); 
+        //     toast.success('¡Entrenamiento finalizado! Buen trabajo.');
+        //     navigate('/'); // Redirigir al usuario a la página de inicio 
+        // }
 
     if (!session) {
         return <div>Cargando sesión...</div>
