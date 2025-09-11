@@ -118,7 +118,7 @@ function RoutineDetailPage() {
                                     <div>
                                         <button onClick={() => handleStartWorkout(day.id)}>¡Empezar Entrenamiento!</button>
                                         <button onClick={() => handleEditDayClick(day)}>Editar</button>
-                                        <button onClick={() => handleDeleteDay(day.id)}>Eliminar</button>
+                                        <button onClick={() => handleDeleteDay(day.id)} className='delete-btn'>Eliminar</button>
                                     </div>
                                 </>
                             )}

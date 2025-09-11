@@ -1,4 +1,37 @@
 /* src/index.css */
+
+/* Reset Básico y Configuración de Box-Sizing */ 
+:root {
+    --primary-color: #4a4e69;
+    --secondary-color: #9a8c98;
+    --background-color: #f2e9e4;
+    --text-color: #22223b;
+    --container-bg: #ffffff;
+    --danger-color: #c94c4c;
+}
+
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--background-color);
+    color: var(--text-color);
+}
+
+/* Layout principal de la Aplicación */
+#root {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background-color: var(--container-bg);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
 .rest-timer-overlay {
     position: fixed;
     bottom: 20px;
