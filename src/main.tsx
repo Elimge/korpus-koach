@@ -9,6 +9,7 @@ import HomePage from './pages/HomePage.tsx';
 import RoutineDetailPage from './pages/RoutineDetailPage.tsx';
 import WorkoutDayPage from './pages/WorkoutDayPage.tsx';
 import './index.css';
+import './components/components.css'
 import WorkoutSessionPage from './pages/WorkoutSessionPage.tsx';
 import DataPage from './pages/DataPage.tsx';
 

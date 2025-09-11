@@ -124,7 +124,7 @@ function HomePage() {
                                 <>
                                     <Link to={`/routine/${routine.id}`}>{routine.name}</Link>
                                     <button onClick={() => handleEditClick(routine)}>Editar</button>
-                                    <button onClick={() => handleDeleteRoutine(routine.id)}>Eliminar</button>
+                                    <button onClick={() => handleDeleteRoutine(routine.id)} className='delete-btn'>Eliminar</button>
                                 </>
                             )}
                             {/* <Link to={`/routine/${routine.id}`}>

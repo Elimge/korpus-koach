@@ -97,7 +97,7 @@ function ExerciseGroupItem({
                                         <span>{exercise.name} ({exercise.restTime}s)</span>
                                         <div>
                                             <button onClick={() => onEditClick(exercise)}>Editar</button>
-                                            <button onClick={() => onDeleteClick(exercise.id)}>Eliminar</button>
+                                            <button onClick={() => onDeleteClick(exercise.id)} className='delete-btn'>Eliminar</button>
                                         </div>
                                     </div>
                                 </summary>

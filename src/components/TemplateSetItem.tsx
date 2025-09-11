@@ -71,7 +71,7 @@ function TemplateSetItem({ set, onUpdate, onDelete }: TemplateSetItemProps) {
             <span>{set.type}: {set.weight} kg x {set.reps} reps</span>
             <div>
                 <button onClick={() => setIsEditing(true)}>Editar</button>
-                <button onClick={() => onDelete(set.id)}>Eliminar</button>
+                <button onClick={() => onDelete(set.id)} className='delete-btn'>Eliminar</button>
             </div>
         </li>
     )
