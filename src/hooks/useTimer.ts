@@ -1,6 +1,7 @@
 // src/hooks/useTimer.ts
 
 import { useState, useEffect, useRef } from 'react';
+import toast from 'react-hot-toast';
 
 const TIMER_END_TIME_KEY = 'korpusKoach_timerEndTime';
 
@@ -27,7 +28,7 @@ export function useTimer() {
                 setEndTime(null);
                 localStorage.removeItem(TIMER_END_TIME_KEY);
                 clearInterval(intervalRef.current!);
-                alert('¡Descanso terminado!')
+                toast.success('¡Descanso terminado!');
             }
         }, 500);
 
