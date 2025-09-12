@@ -23,19 +23,27 @@ interface ExerciseGroupItemProps {
     onDeleteClick: (exerciseId: string) => void;
     // Prop para refrescar los datos cuando se añade una serie
     onDataChanged: () => Promise<void>;
+    selectedExercises: string[];
+    onSelectExercise: (exerciseId: string) => void;
+    onUnGroup: (groupId: string) => void;
 }
 
 function ExerciseGroupItem({
     group, routineId, dayId,
     editingExerciseId, editingExName, editingExRest,
     onNameChange, onRestChange, onEditClick, onSaveClick, onCancelClick, onDeleteClick,
-    onDataChanged
+    onDataChanged, selectedExercises, onSelectExercise, onUnGroup
 }: ExerciseGroupItemProps) {
     const isSuperSet = group.exercises.length > 1;
 
     return (
         <div className={`exercise-group-item ${isSuperSet ? "superset" : ""}`}>
-            {isSuperSet && <h4 className='superset-title'>Superserie</h4>}
+            {isSuperSet && (
+                <div className='superset-header'>
+                    <h4>Superserie</h4>
+                    <button onClick={() => onUnGroup(group.id)}>Desagrupar</button>
+                </div>
+            )}
 
             {group.exercises.map(exercise => {
                 const handleUpdateSet = async (setId: string, updates: Partial<WorkoutSet>) => {
@@ -94,6 +102,11 @@ function ExerciseGroupItem({
                             <details className='exercise-item'>
                                 <summary>
                                     <div className='exercise-summary-content'>
+                                        <input
+                                            type="checkbox"
+                                            checked={selectedExercises.includes(exercise.id)}
+                                            onChange={() => onSelectExercise(exercise.id)}
+                                        />
                                         <span>{exercise.name} ({exercise.restTime}s)</span>
                                         <div>
                                             <button onClick={() => onEditClick(exercise)}>Editar</button>

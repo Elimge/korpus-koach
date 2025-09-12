@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import type { WorkoutDay } from '../types';
+import type { ExerciseGroup, WorkoutDay } from '../types';
 import { db } from '../services/db';
 import CreateExerciseForm from '../components/CreateExerciseForm';
 import ExerciseGroupItem from '../components/ExerciseGroupItem';
@@ -15,6 +15,7 @@ function WorkoutDayPage() {
     const [editingExerciseId, setEditingExerciseId] = useState<string | null>(null);
     const [editingExName, setEditingExName] = useState('');
     const [editingExRest, setEditingExRest] = useState(60);
+    const [selectedExercises, setSelectedExercises] = useState<string[]>([]);
 
     const fetchDay = async () => {
         if (routineId) {
@@ -76,10 +77,69 @@ function WorkoutDayPage() {
                 </button>
             </span>
         ));
-        
-        // if (!routineId || !dayId || !window.confirm('¿Seguro que quieres eliminar este ejercicio?')) return;
-        // await db.deleteExercise(routineId, dayId, exerciseId);
-        // fetchDay();
+    }
+
+    const handleSelectExercise = (exerciseId: string) => {
+        setSelectedExercises(prevSelected => {
+            if (prevSelected.includes(exerciseId)) {
+                // Si ya está seleccionado, se quita 
+                return prevSelected.filter(id => id !== exerciseId);
+            } else {
+                // Si no está seleccionado, se añade 
+                return [...prevSelected, exerciseId];
+            }
+        });
+    };
+
+    const handleGroupSuperset = async () => {
+        if (!day || !routineId || !dayId) return;
+
+        // Se recogen los ejercicios que no están seleccionados y se dejan en sus propios grupos..
+        const nonSelectedGroups: ExerciseGroup[] = [];
+        day.groups.forEach(group => {
+            group.exercises.forEach(ex => {
+                if (!selectedExercises.includes(ex.id)) {
+                    nonSelectedGroups.push({ id: crypto.randomUUID(), exercises: [ex] });
+                }
+            });
+        });
+
+        const selectedExs: Exercise[] = [];
+        day.groups.forEach(group => {
+            group.exercises.forEach(ex => {
+                if (selectedExercises.includes(ex.id)) {
+                    selectedExs.push(ex);
+                }
+            });
+        });
+
+        const supersetGroup: ExerciseGroup = { id: crypto.randomUUID(), exercises: selectedExs};
+
+        const newGroups = [...nonSelectedGroups, supersetGroup];
+
+        await db.updateDayGroups(routineId, dayId, newGroups);
+        setSelectedExercises([]); // Se limpia la selección 
+        fetchDay();
+    };        
+
+    const handleUnGroupSuperset = async (groupIdToUnGroup: string) => {
+        if (!day || !routineId || !dayId) return;
+
+        const newGroups: ExerciseGroup[] = [];
+        day.groups.forEach(group => {
+            if (group.id === groupIdToUnGroup) {
+                // Si es el grupo a desagrupar, se crea un grupo nuevo para cada ejercicio.
+                group.exercises.forEach(ex => {
+                    newGroups.push({ id: crypto.randomUUID(), exercises: [ex] });
+                });
+            } else {
+                // Si no, se queda como está 
+                newGroups.push(group); 
+            }
+        });
+
+        await db.updateDayGroups(routineId, dayId, newGroups);
+        fetchDay();
     }
 
     if (!day) {
@@ -89,6 +149,9 @@ function WorkoutDayPage() {
     return (
         <div>
             <Link to={`/routine/${routineId}`}>&larr; Volver a la Rutina</Link>
+            {selectedExercises.length > 1 && (
+                <button onClick={handleGroupSuperset}>Agrupar {selectedExercises.length} en Superserie</button> )}
+            
             <h2>{day.name}</h2>
 
             {(day.groups && day.groups.length > 0) ? (
@@ -109,6 +172,9 @@ function WorkoutDayPage() {
                             onCancelClick={handleCancelEdit}
                             onDeleteClick={handleDeleteExercise}
                             onDataChanged={fetchDay}
+                            selectedExercises={selectedExercises}
+                            onSelectExercise={handleSelectExercise}
+                            onUnGroup={handleUnGroupSuperset}
                         />
                     ))}
                 </div>
