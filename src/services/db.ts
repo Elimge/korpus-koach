@@ -371,6 +371,15 @@ export class KorpusKoachDB extends Dexie {
       }
     });
   }
+
+  async updateDayGroups(routineId: string, dayId: string, newGroups: ExerciseGroup[]): Promise<void> {
+    await this.routines.where({ id: routineId }).modify(routine => {
+      const day = routine.days.find(d => d.id === dayId);
+      if (day) {
+        day.groups = newGroups;
+      }
+    });
+  }
 }
 
 // Se crea una única instancia a la base de datos y se exporta.

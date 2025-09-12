@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import type { WorkoutSession, SessionSet, SessionExercise } from '../types';
+import type { WorkoutSession, SessionSet, SessionExercise, SessionExerciseGroup } from '../types';
 import { db } from '../services/db';
 import SessionExerciseItem from '../components/SessionExerciseItem';
 import RestTimer from '../components/RestTimer';
@@ -25,8 +25,24 @@ function WorkoutSessionPage() {
             }
         };
         fetchSession();
-        initializeTimer(); 
+        initializeTimer();
     }, [sessionId]);
+
+    const getNextSetIndexForGroup = (group: SessionExerciseGroup): number => {
+        if (!group || group.exercises.length === 0) return 0;
+
+        // Se asume que todas las series tienen la misma longitud en una superserie 
+        const numSets = group.exercises[0].sets.length;
+
+        for (let i = 0; i < numSets; i++) {
+            // Se busca el primer indice donde al menos un ejercicio no ha completado la serie.
+            const isRoundIncomplete = group.exercises.some(ex => !ex.sets[i]?.completed);
+            if (isRoundIncomplete) {
+                return i; // Ronda activa 
+            }
+        }
+        return numSets; // Todas las rondas están completas
+    };
 
     const handleSetUpdate = async (exerciseId: string, setId: string, updatedData: Partial<SessionSet>) => {
         // Guard
@@ -35,48 +51,55 @@ function WorkoutSessionPage() {
         let shouldStartTimer = false;
         let exerciseForTimer: SessionExercise | undefined;
 
-        // Respuesta de UI instantánea 
-        const updatedGroups = session.groups.map(group => ({
-            ...group,
-            exercises: group.exercises.map(ex => {
-                if (ex.id === exerciseId) {
-                    exerciseForTimer = ex; // Se guarda la referencia para el nombre y tiempo de descanso
-                    const updatedSets = ex.sets.map(set => 
-                        set.id === setId ? { ...set, ...updatedData } : set
-                    );
+        const updatedSession = { ...session };
 
-                    // --- LÓGICA DE SUPERSERIE ---
-                    if (updatedData.completed) {
-                        const setIndex = ex.sets.findIndex(s =>s.id === setId);
-                        const isSuperset = group.exercises.length > 1; 
+        // Se busca el grupo y el ejercicio afectados
+        const group = updatedSession.groups.find(g => g.exercises.some(e => e.id === exerciseId));
+        if (!group) return;
 
-                        if (!isSuperset) {
-                            shouldStartTimer = true;
-                        } else {
-                            // Es una superserie. Verificamos si los otros ejercicios ya completaron esta ronda. 
-                            const allOthersCompleted = group.exercises
-                                .filter(otherEx => otherEx.id !== exerciseId)
-                                .every(otherEx => otherEx.sets[setIndex]?.completed);
-                            
-                            if (allOthersCompleted) {
-                                shouldStartTimer = true;
-                            }
-                        }
+        // Se actualiza el estado de la serie específica
+        group.exercises.forEach(ex => {
+            if (ex.id === exerciseId) {
+                const set = ex.sets.find(s => s.id === setId);
+                if (set) Object.assign(set, updatedData);
+                exerciseForTimer = ex;
+            }
+        });
+
+        // --- TEMPORARIZADOR DE SUPERSERIES ---
+        if (updatedData.completed) {
+            const isSuperset = group.exercises.length > 1; 
+
+            if (!isSuperset) {
+                shouldStartTimer = true;
+            } else {
+                // Se busca el índice de la serie dentro del ejercicio que fue clickeado ('exerciseForTimer').
+                const currentSetIndex = exerciseForTimer.sets.findIndex(s => s.id === setId);
+
+                // si el índice es válido (no -1), se procede a comprobar la ronda.
+                if (currentSetIndex !== -1) {
+                    const isRoundComplete = group.exercises.every(ex => ex.sets[currentSetIndex]?.completed);
+                    if (isRoundComplete) {
+                        shouldStartTimer = true;
                     }
-                    return { ...ex, sets:updatedSets };
                 }
-                return ex;
-            }) 
-        }));
+                // // Se comprueba si todos los ejercicios de esta superserie han completado la ronda actual. 
+                // const isRoundComplete = group.exercises.every(ex => ex.sets[currentSetIndex]?.completed);
+
+                // if (isRoundComplete) {
+                //     shouldStartTimer = true;
+            }
+        }
 
         // Actualización optimista de la UI 
-        setSession({ ...session, groups: updatedGroups });
-    
+        setSession(updatedSession);
+
         if (shouldStartTimer && exerciseForTimer) {
             setTimerExerciseName(exerciseForTimer.name);
             startTimer(exerciseForTimer.restTime);
         }
 
+        // Persistencia en la BD
         await db.updateSessionSet(session.id, exerciseId, setId, updatedData);
     };
 
@@ -96,12 +119,12 @@ function WorkoutSessionPage() {
         toast((t) => (
             <span>
                 ¿Seguro que quieres finalizar el entrenamiento?
-                <button 
+                <button
                     onClick={() => {
                         toast.dismiss(t.id); // Cierra esta notificación
                         // 3. Usamos toast.promise para manejar la operación de borrado
                         toast.promise(
-                           (async () => {
+                            (async () => {
                                 if (!session?.id) throw new Error('ID de sesión no encontrado.')
                                 await db.finishWorkoutSession(session.id);
                                 navigate('/');
@@ -112,7 +135,7 @@ function WorkoutSessionPage() {
                                 error: 'No se pudo finalizar.',   // Mensaje si la promesa es rechazada
                             }
                         );
-                        
+
                     }}
                     style={{ marginLeft: '10px' }}
                 >
@@ -121,11 +144,6 @@ function WorkoutSessionPage() {
             </span>
         ));
     };
-        // if (session && window.confirm('¿Seguro que quieres finalizar el entrenamiento?')) {
-        //     await db.finishWorkoutSession(session.id); 
-        //     toast.success('¡Entrenamiento finalizado! Buen trabajo.');
-        //     navigate('/'); // Redirigir al usuario a la página de inicio 
-        // }
 
     if (!session) {
         return <div>Cargando sesión...</div>
@@ -137,19 +155,25 @@ function WorkoutSessionPage() {
             <p>Iniciada: {new Date(session.startTime).toLocaleTimeString()}</p>
 
 
-            {session.groups.map(group => (
-                <div key={group.id} className='exercise.group'>
-                    {group.exercises.map(exercise => (
-                        <SessionExerciseItem
-                            key={exercise.id}
-                            exercise={exercise}
-                            onSetUpdate={handleSetUpdate}
-                            onAddSet={handleAddSet}
-                            isTimerActive={isTimerActive}
-                        />
-                    ))}
-                </div>
-            ))}
+            {session.groups.map(group => {
+                const nextSetIndex = getNextSetIndexForGroup(group);
+
+                return (
+                    <div key={group.id} className='exercise.group'>
+                        {group.exercises.map(exercise => (
+                            <SessionExerciseItem
+                                key={exercise.id}
+                                exercise={exercise}
+                                onSetUpdate={handleSetUpdate}
+                                onAddSet={handleAddSet}
+                                isTimerActive={isTimerActive}
+                                nextSetIndex={nextSetIndex}
+                                isSuperset={group.exercises.length > 1}
+                            />
+                        ))}
+                    </div>
+                );
+            })}
             {isTimerActive && (
                 <RestTimer remainingTime={remainingTime} exerciseName={timerExerciseName} />
             )}
