@@ -1,6 +1,6 @@
 // src/services/db.ts 
 
-import Dexie, { type Table } from 'dexie'; 
+import Dexie, { type Table } from 'dexie';
 // Importamos los tipos para que la base de datos sepa que forma tienen los datos.
 import type { Routine, WorkoutDay, Exercise, ExerciseGroup, WorkoutSet, WorkoutSession, SessionSet, SessionExerciseGroup, BodyWeightEntry } from '../types';
 
@@ -13,8 +13,8 @@ export class KorpusKoachDB extends Dexie {
   days!: Table<WorkoutDay, string>;
   exercises!: Table<Exercise, string>;
   sets!: Table<WorkoutSet, string>;
-  workoutSessions!: Table<WorkoutSession, string>;  
-  bodyWeights!: Table<BodyWeightEntry, string>; 
+  workoutSessions!: Table<WorkoutSession, string>;
+  bodyWeights!: Table<BodyWeightEntry, string>;
   // Se pueden añadir más tablas aquí a futuro
 
   constructor() {
@@ -23,20 +23,20 @@ export class KorpusKoachDB extends Dexie {
 
     // El metodo version().stores() define el esquema de la base de datos.
     this.version(1).stores({
-        // Listar las tablas y saber como están indexadas
-        routines: 'id, isActive',
+      // Listar las tablas y saber como están indexadas
+      routines: 'id, isActive',
     });
     // Se pasa de v1 a v2, Dexie maneja las migraciones
     this.version(2).stores({
-      routines: 'id, isActive', 
-      workoutSessions: 'id, status' 
+      routines: 'id, isActive',
+      workoutSessions: 'id, status'
     });
     // Migración de la estructura de rutinas 
     this.version(3).upgrade(tx => {
       // tx.table('routines') da acceso a la tabla para modificarla.
       // .toCollection()modify() nos permite iterar sobre cada rutina guardada. 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      return tx.table('routines').toCollection().modify((routine:any) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      return tx.table('routines').toCollection().modify((routine: any) => {
         // 'routine' aquí es una rutina con la estructura antigua.
         // Verificamos si tiene la propiedad 'days' y si necesita migración.
         if (routine.days && routine.days.length > 0) {
@@ -64,14 +64,14 @@ export class KorpusKoachDB extends Dexie {
     });
     // Nueva versión para modificar la tabla de rutina
     this.version(5).stores({
-        routines: 'id, isActive',
-        // Se añade 'routineId' a la lista de índices.
-        workoutSessions: 'id, status, routineId',
-        bodyWeights: 'id, date' 
+      routines: 'id, isActive',
+      // Se añade 'routineId' a la lista de índices.
+      workoutSessions: 'id, status, routineId',
+      bodyWeights: 'id, date'
     });
   }
 
-  async addRoutine(name:string) {
+  async addRoutine(name: string) {
     try {
       const newRoutine: Routine = {
         id: crypto.randomUUID(), // Genera un ID único universal
@@ -100,21 +100,21 @@ export class KorpusKoachDB extends Dexie {
   }
 
   async addWorkoutDayToRoutine(routineId: string, dayName: string) {
-    try { 
+    try {
       const newDay: WorkoutDay = {
         id: crypto.randomUUID(),
         name: dayName,
         groups: [],
-      }; 
-      
-      await this.routines.where({ id:routineId }).modify(routine => {
+      };
+
+      await this.routines.where({ id: routineId }).modify(routine => {
         if (!routine.days) {
-          routine.days = []; 
+          routine.days = [];
         }
         routine.days.push(newDay);
       });
       console.log(`Día "${dayName}" añadido a la rutina ${routineId}`);
-    } catch (error) { 
+    } catch (error) {
       console.error('Error al añadir el día de entrenamiento: ', error);
     }
   }
@@ -146,14 +146,14 @@ export class KorpusKoachDB extends Dexie {
       console.error('Error al añadir el ejercicio: ', error);
     }
   }
-  
-  async addSetToExercise( routineId: string, dayId: string, exerciseId: string, setData: Omit<WorkoutSet, 'id' | 'completed'>) { 
+
+  async addSetToExercise(routineId: string, dayId: string, exerciseId: string, setData: Omit<WorkoutSet, 'id' | 'completed'>) {
     try {
       const newSet: WorkoutSet = {
         id: crypto.randomUUID(),
         ...setData, // Copia las propiedades de setData (type, reps, weight)
         completed: false,
-      }; 
+      };
 
       await this.routines.where({ id: routineId }).modify(routine => {
         const day = routine.days.find(d => d.id === dayId);
@@ -168,11 +168,11 @@ export class KorpusKoachDB extends Dexie {
             }
           });
         }
-      }); 
-      console.log(`Serie añadida al ejercicio ${exerciseId}`); 
+      });
+      console.log(`Serie añadida al ejercicio ${exerciseId}`);
     } catch (error) {
-      console.error('Error al añadir la serie: ', error); 
-    } 
+      console.error('Error al añadir la serie: ', error);
+    }
   }
 
   async startWorkoutSession(routineId: string, dayId: string): Promise<string> {
@@ -195,7 +195,7 @@ export class KorpusKoachDB extends Dexie {
       })),
     }));
 
-    const newSession: WorkoutSession = { 
+    const newSession: WorkoutSession = {
       id: crypto.randomUUID(),
       startTime: new Date(),
       status: 'in-progress',
@@ -215,8 +215,8 @@ export class KorpusKoachDB extends Dexie {
   async updateSessionSet(sessionId: string, exerciseId: string, setId: string, setData: Partial<SessionSet>) {
     await this.workoutSessions.where({ id: sessionId }).modify(session => {
       if (session.groups) {
-        session.groups.forEach(group => {   
-          const exercise = group.exercises.find(e => e.id === exerciseId); 
+        session.groups.forEach(group => {
+          const exercise = group.exercises.find(e => e.id === exerciseId);
           if (exercise) {
             const set = exercise.sets.find(s => s.id === setId);
             if (set) {
@@ -224,29 +224,50 @@ export class KorpusKoachDB extends Dexie {
               Object.assign(set, setData);
             }
           }
-        }); 
+        });
       }
     });
   }
-  
+
   async finishWorkoutSession(sessionId: string) {
-    // Update solo para cambiar las propiedades que interesan
-    await this.workoutSessions.update(sessionId, {
-      status: 'completed',
-      endTime: new Date(),
+    // Se usa una transacción para leer la sesión, calcular y luego actualizarla.
+    // Esto asegura que la operación sea atómica.
+    await this.transaction('rw', this.workoutSessions, async () => {
+      const session = await this.workoutSessions.get(sessionId);
+      if (!session) return;
+
+      // --- Lógica de cálculo de tonelaje ---
+      let totalTonnage = 0;
+      session.groups.forEach(group => {
+        group.exercises.forEach(exercise => {
+          exercise.sets.forEach(set => {
+            if (set.completed && set.actualWeight && set.actualReps) {
+              totalTonnage += set.actualWeight * set.actualReps;
+            }
+          });
+        });
+      });
+
+      // Se actualiza la sesión con su estado final y los datos calculados.
+      await this.workoutSessions.update(sessionId, {
+        status: 'completed',
+        endTime: new Date(),
+        totalTonnage: totalTonnage
+      });
+
+      console.log(`Sesión ${sessionId} finalizada con un tonelaje de ${totalTonnage}kg.`);
     });
-    console.log(`Sesión ${sessionId} finalizada`);
   }
 
   // Metodo para modificar la sesión no la plantilla de rutina
   async addSetToSessionExercise(sessionId: string, exerciseId: string) {
     try {
-      await this.workoutSessions.where({ id:sessionId }).modify(session => {
+      await this.workoutSessions.where({ id: sessionId }).modify(session => {
         if (session.groups) {
           session.groups.forEach(group => {
             const exercise = group.exercises.find(e => e.id === exerciseId);
             if (exercise) {
-            // La plantilla para la nueva serie, puede copiar la ultima o usar valores por defecto 
+              // La plantilla para la nueva serie, puede copiar la ultima o usar valores por defecto 
               const lastSet = exercise.sets[exercise.sets.length - 1];
               const newSet: SessionSet = {
                 id: crypto.randomUUID(),
@@ -259,7 +280,7 @@ export class KorpusKoachDB extends Dexie {
             }
           });
         }
-      }); 
+      });
     } catch (error) {
       console.error('Error al añadir la serie extra: ', error);
     }
@@ -278,13 +299,13 @@ export class KorpusKoachDB extends Dexie {
   async getBodyWeightHistory(): Promise<BodyWeightEntry[]> {
     // .orderBy('date') para obtener los datos ya ordenados desde la BD, más eficiente que por js.
     return await this.bodyWeights.orderBy('date').toArray();
-  } 
+  }
 
   async updateRoutineName(routineId: string, newName: string): Promise<void> {
     await this.routines.update(routineId, { name: newName });
   }
 
-  async deleteRoutine(routineId:string): Promise<void> {
+  async deleteRoutine(routineId: string): Promise<void> {
     // Transacción para asegruar que ambas operaciones se completen con éxito o ninguna lo haga (borrar rutina y sus sesiones)
     await this.transaction('rw', this.routines, this.workoutSessions, async () => {
       await this.routines.delete(routineId);
@@ -295,7 +316,7 @@ export class KorpusKoachDB extends Dexie {
 
   async updateWorkoutDayName(routineId: string, dayId: string, newName: string): Promise<void> {
     await this.routines.where({ id: routineId }).modify(routine => {
-      const day = routine.days.find( d => d.id === dayId);
+      const day = routine.days.find(d => d.id === dayId);
       if (day) {
         day.name = newName;
       }
@@ -341,7 +362,7 @@ export class KorpusKoachDB extends Dexie {
     });
   }
 
-  async updateSetInTemplate(routineId:string, dayId: string, exerciseId: string, setId: string, updates: Partial<Omit<WorkoutSet, 'id' | 'completed'>>): Promise<void> {
+  async updateSetInTemplate(routineId: string, dayId: string, exerciseId: string, setId: string, updates: Partial<Omit<WorkoutSet, 'id' | 'completed'>>): Promise<void> {
     await this.routines.where({ id: routineId }).modify(routine => {
       const day = routine.days.find(d => d.id === dayId);
       if (day?.groups) {
@@ -350,7 +371,7 @@ export class KorpusKoachDB extends Dexie {
           if (exercise?.sets) {
             const set = exercise.sets.find(s => s.id === setId);
             if (set) {
-              Object.assign(set,  updates);
+              Object.assign(set, updates);
             }
           }
         });
