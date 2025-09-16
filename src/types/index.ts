@@ -64,6 +64,7 @@ export interface WorkoutSession {
     dayId: string; // Referencia al día original 
     status: 'in-progress' | 'completed';
     groups: SessionExerciseGroup[];
+    totalTonnage?: number;
 }
 
 export interface BodyWeightEntry {

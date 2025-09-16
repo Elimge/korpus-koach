@@ -127,7 +127,7 @@ function WorkoutSessionPage() {
                             (async () => {
                                 if (!session?.id) throw new Error('ID de sesión no encontrado.')
                                 await db.finishWorkoutSession(session.id);
-                                navigate('/');
+                                navigate(`/session/${session.id}/summary`);
                             })(),  // La operación a ejecutar 
                             {
                                 loading: 'Finalizando sesión...', // Mensaje mientras la promesa está pendiente
