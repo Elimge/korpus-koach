@@ -4,10 +4,14 @@ import { db } from '../services/db';
 import type { BodyWeightEntry, PersonalRecord } from '../types';
 import AddBodyWeightForm from '../components/AddBodyWeightForm';
 import BodyWeightChart  from '../components/charts/BodyWeightChart';
+import StrengthProgressChart from '../components/charts/StrengthProgressChart';
 
 function DataPage() {
     const [history, setHistory] = useState<BodyWeightEntry[]>([]);
     const [prs, setPrs] = useState<PersonalRecord[]>([]);
+    const [selectedExerciseId, setSelectedExerciseId] = useState<string | null>(null);
+    const [selectedPrHistory, setSelectedPrHistory] = useState<PersonalRecord[]>([]);
+    const [selectedRepRange, setSelectedRepRange] = useState<number | null>(null);
 
     const fetchData = async () => {
         const weightData = await db.getBodyWeightHistory();
@@ -19,6 +23,21 @@ function DataPage() {
     useEffect(() => {
         fetchData();
     }, []);
+
+    // Efecto que se ejecuta cuando el usuario selecciona una ejercicio 
+    useEffect(() => {
+        if (selectedExerciseId) {
+            db.getPRsForExercise(selectedExerciseId).then(setSelectedPrHistory);
+        }
+    }, [selectedExerciseId]);
+
+    // Se obtiene una lista de ejercicios únicos que tienen PRs 
+    const exerciseWithPRs = [...new Map(prs.map(pr => [pr.exerciseId, pr])).values()];
+
+    const availableRepRanges = selectedPrHistory
+        .map(pr => pr.reps) // Solo las reps 
+        .filter((value, index, self) => self.indexOf(value) === index) // Filtra para tener valores únicos
+        .sort((a, b) => a - b); // Ordena numéricamente
 
     // Se agrupan los PRs por ejercicio 
     const prsByExercise = prs.reduce((acc, pr) => {
@@ -58,6 +77,7 @@ function DataPage() {
             ) : (
                 <p>No hay registros de peso corporal</p>
             )}
+            <hr /> 
 
             <h3>Récords Personales (PRs)</h3>
             {Object.keys(prsByExercise).length > 0 ? (
@@ -76,6 +96,47 @@ function DataPage() {
                 ))
             ) : (
                 <p>¡Completa algunas series para empezar a registrar tus récords!</p>
+            )}
+            <hr /> 
+
+            <h3>Progreso de Fuerza vs. Peso Corporal</h3>
+            {exerciseWithPRs.length > 0 ? (
+                <div>
+                    <select onChange={(e) => {
+                        setSelectedExerciseId(e.target.value);
+                        setSelectedRepRange(null); 
+                        }} 
+                        value={selectedExerciseId || ''}
+                    >
+                        <option value=''>Selecciona un ejercicio...</option>
+                        {exerciseWithPRs.map(pr => (
+                            <option key={pr.exerciseId} value={pr.exerciseId}>
+                                {pr.exerciseName}
+                            </option>
+                        ))}
+                    </select>
+
+                    <select 
+                        onChange={(e) => setSelectedRepRange(Number(e.target.value))}
+                        value={selectedRepRange || ''}
+                    >
+                        <option value=''>Selecciona repeticiones...</option>
+                        {availableRepRanges.map(reps => (
+                            <option key={reps} value={reps}>
+                                {reps} repeticiones
+                            </option>
+                        ))}
+                    </select>
+
+                    {selectedExerciseId && selectedRepRange && (
+                        <StrengthProgressChart 
+                            prHistory={selectedPrHistory.filter(pr => pr.reps === selectedRepRange)}
+                            bodyWeightHistory={history} 
+                        />
+                    )}
+                </div>
+            ) : (
+                <p>Registra algunos PRs para ver tu progreso.</p>
             )}
         </div>
     );
