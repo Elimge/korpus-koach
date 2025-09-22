@@ -18,6 +18,7 @@ function App() {
         <nav>
             <NavLink to="/">Mis Rutinas</NavLink>
             <NavLink to="/progress">Mi Progreso</NavLink>
+            <NavLink to="/history">Historial</NavLink>
         </nav>
 
         <main>

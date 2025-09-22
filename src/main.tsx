@@ -13,6 +13,7 @@ import './components/components.css'
 import WorkoutSessionPage from './pages/WorkoutSessionPage.tsx';
 import DataPage from './pages/DataPage.tsx';
 import WorkoutSummaryPage from './pages/WorkoutSummaryPage.tsx';
+import HistoryPage from './pages/HistoryPage.tsx';
 
 // Crear el enrutador
 const router = createBrowserRouter([
@@ -44,6 +45,10 @@ const router = createBrowserRouter([
       {
         path: "session/:sessionId/summary",
         element: <WorkoutSummaryPage />
+      },
+      {
+        path: "/history",
+        element: <HistoryPage /> 
       }
       // otra pagina por ejemplo
       // { path: "settings", element: <SettingsPage /> }

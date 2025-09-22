@@ -2,7 +2,8 @@
 
 import Dexie, { type Table } from 'dexie';
 // Importamos los tipos para que la base de datos sepa que forma tienen los datos.
-import type { Routine, WorkoutDay, Exercise, ExerciseGroup, WorkoutSet, WorkoutSession, SessionSet, SessionExerciseGroup, BodyWeightEntry } from '../types';
+import type { Routine, WorkoutDay, Exercise, ExerciseGroup, WorkoutSet, WorkoutSession, SessionSet, SessionExerciseGroup, BodyWeightEntry, PersonalRecord } from '../types';
+import toast from 'react-hot-toast';
 
 export class KorpusKoachDB extends Dexie {
   // Las propiedades 'routines', 'days', etc., son las "tablas" de nuestra base de datos.
@@ -15,6 +16,7 @@ export class KorpusKoachDB extends Dexie {
   sets!: Table<WorkoutSet, string>;
   workoutSessions!: Table<WorkoutSession, string>;
   bodyWeights!: Table<BodyWeightEntry, string>;
+  personalRecords!: Table<PersonalRecord, string>;
   // Se pueden añadir más tablas aquí a futuro
 
   constructor() {
@@ -68,6 +70,17 @@ export class KorpusKoachDB extends Dexie {
       // Se añade 'routineId' a la lista de índices.
       workoutSessions: 'id, status, routineId',
       bodyWeights: 'id, date'
+    });
+    this.version(6).stores({
+      // Se indexa por exerciseId para buscar fácilmente los PRs de un ejercicio 
+      personalRecords: 'id, exerciseId'
+    });
+    this.version(7).stores({
+      // Redefinición de esquema 
+      routine: 'id, isActive',
+      workoutSessions: 'id, status, routineId, startTime',
+      bodyWeights: 'id, date',
+      personalRecords: 'id, exerciseId'
     });
   }
 
@@ -400,6 +413,34 @@ export class KorpusKoachDB extends Dexie {
         day.groups = newGroups;
       }
     });
+  }
+
+  async checkAndUpdatePR(exerciseId: string, exerciseName: string, reps: number, weight: number): Promise<void> {
+    const prId = `${exerciseId}-${reps}`; // Se crea un ID único para el par ejercicio-repeticiones
+    const existingPR = await this.personalRecords.get(prId);
+
+    if (!existingPR || weight > existingPR.weight) {
+      // Si no hay PR para este rango de reps, o si el nuevo peso es mayor...
+      const newPR: PersonalRecord = {
+        id: prId,
+        exerciseId,
+        exerciseName,
+        reps,
+        weight,
+        date: new Date(),
+      }; 
+      await this.personalRecords.put(newPR); // .put() inserta o reemplaza 
+      toast.success(`¡Nuevo PR! ${weight} kg x ${reps} reps en ${exerciseName}`);
+    }
+  }
+
+  async getAllSessions(): Promise<WorkoutSession[]> {
+    // Se obtienen todas las sesiones, ordenadas por la más reciente primero.
+    return await this.workoutSessions.orderBy('startTime').reverse().toArray();
+  }
+
+  async getAllPRs(): Promise<PersonalRecord[]> {
+    return await this.personalRecords.toArray();
   }
 }
 
