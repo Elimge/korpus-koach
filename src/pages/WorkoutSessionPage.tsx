@@ -101,6 +101,16 @@ function WorkoutSessionPage() {
 
         // Persistencia en la BD
         await db.updateSessionSet(session.id, exerciseId, setId, updatedData);
+
+        // Si la serie se completó, comprobamos si es un nuevo PR. 
+        if (updatedData.completed && updatedData.actualReps && updatedData.actualWeight && exerciseForTimer) {
+            await db.checkAndUpdatePR(
+                exerciseId,
+                exerciseForTimer.name, // Se necesita el nombre del ejercicio 
+                updatedData.actualReps,
+                updatedData.actualWeight
+            );
+        }
     };
 
     const handleAddSet = async (exerciseId: string) => {

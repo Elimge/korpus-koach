@@ -39,8 +39,8 @@ import toast from 'react-hot-toast';
 function HomePage() {
     // Estado para guardar la lista de rutinas que vienen de la BD 
     const [routines, setRoutines] = useState<Routine[]>([]);
-     const [editingRoutineId, setEditingRoutineId] = useState<string | null>(null);
-     const [editingName, setEditingName] = useState('');
+    const [editingRoutineId, setEditingRoutineId] = useState<string | null>(null);
+    const [editingName, setEditingName] = useState('');
 
     const fetchRoutines = async () => {
         const allRoutines = await db.getAllRoutines();

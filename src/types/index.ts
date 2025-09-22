@@ -72,3 +72,12 @@ export interface BodyWeightEntry {
     date: Date;
     weight: number;
 }
+
+export interface PersonalRecord {
+    id: string; // Compuesto: `exerciseId-reps` ej: "press-banca-5"
+    exerciseId: string;
+    exerciseName: string;
+    reps: number;
+    weight: number;
+    date: Date;
+}
