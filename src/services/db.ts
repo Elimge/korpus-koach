@@ -442,6 +442,13 @@ export class KorpusKoachDB extends Dexie {
   async getAllPRs(): Promise<PersonalRecord[]> {
     return await this.personalRecords.toArray();
   }
+
+  async getPRsForExercise(exerciseId: string): Promise<PersonalRecord[]> {
+    // where() para filtrar, sortBy() para ordenar 
+    return await this.personalRecords
+      .where({ exerciseId })
+      .sortBy('date');
+  }
 }
 
 // Se crea una única instancia a la base de datos y se exporta.
