@@ -6,23 +6,33 @@ import type { ExerciseGroup, WorkoutDay } from '../types';
 import { db } from '../services/db';
 import CreateExerciseForm from '../components/CreateExerciseForm';
 import ExerciseGroupItem from '../components/ExerciseGroupItem';
+import Spinner from '../components/Spinner';
+import EmptyState from '../components/EmptyState';
 import toast from 'react-hot-toast';
 
 function WorkoutDayPage() {
     // Para la URL Se esperan dos paramatros 
     const { routineId, dayId } = useParams<{ routineId: string, dayId: string }>();
     const [day, setDay] = useState<WorkoutDay | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
     const [editingExerciseId, setEditingExerciseId] = useState<string | null>(null);
     const [editingExName, setEditingExName] = useState('');
     const [editingExRest, setEditingExRest] = useState(60);
     const [selectedExercises, setSelectedExercises] = useState<string[]>([]);
 
     const fetchDay = async () => {
-        if (routineId) {
-            const routine = await db.getRoutineById(routineId);
-            // Se busca el día específico dentro de la rutina 
-            const currentDay = routine?.days.find(d => d.id === dayId);
-            setDay(currentDay || null);
+        try {
+            if (routineId) {
+                const routine = await db.getRoutineById(routineId);
+                // Se busca el día específico dentro de la rutina 
+                const currentDay = routine?.days.find(d => d.id === dayId);
+                setDay(currentDay || null);
+            }
+        } catch (error) {
+            console.error('Error al cargar el día de la rutina', error);
+            toast.error('No se pudo cargar el día de la rutina.');
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -142,9 +152,19 @@ function WorkoutDayPage() {
         fetchDay();
     }
 
-    if (!day) {
-        return <div>Día no encontrado o cargando...</div>
+    if (isLoading) {
+        return <Spinner />;
     }
+
+    if (!day) {
+        return (
+            <div>
+                <h3>Día no encontrado</h3>
+                <p>Es posible que haya sido eliminado o el enlace sea incorrecto.</p>
+                <Link to="/">Volver a mis rutinas</Link>
+            </div>
+    );
+}
 
     return (
         <div>
@@ -179,7 +199,10 @@ function WorkoutDayPage() {
                     ))}
                 </div>
             ) : (
-                <p>Este día todavía no tiene ejercicios.</p>
+                <EmptyState
+                    title="Añade Ejercicios al Día"
+                    message="Define los ejercicios que harás en esta sesión de entrenamiento."
+                />
             )}
             <hr /> 
             {routineId && dayId && (
