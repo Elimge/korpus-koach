@@ -7,6 +7,8 @@ import type { Routine } from '../types';
 import { db } from '../services/db';
 import CreateRoutineForm from '../components/CreateRoutineForm';
 import toast from 'react-hot-toast'; 
+import Spinner from '../components/Spinner';
+import EmptyState from '../components/EmptyState';
 
 // Dato de prueba (mock data)
 // const mockActiveRoutine: Routine = {
@@ -39,12 +41,20 @@ import toast from 'react-hot-toast';
 function HomePage() {
     // Estado para guardar la lista de rutinas que vienen de la BD 
     const [routines, setRoutines] = useState<Routine[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
     const [editingRoutineId, setEditingRoutineId] = useState<string | null>(null);
     const [editingName, setEditingName] = useState('');
 
     const fetchRoutines = async () => {
-        const allRoutines = await db.getAllRoutines();
-        setRoutines(allRoutines);
+        try {
+            const allRoutines = await db.getAllRoutines();
+            setRoutines(allRoutines);
+        } catch (error) {
+            console.error('Error al cargar las rutinas', error);
+            toast.error('No se pudieron cargar las rutinas.');
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     // useEffect para cargar los datos cuando el componente se monta
@@ -98,13 +108,20 @@ function HomePage() {
         fetchRoutines(); 
     }
 
+    if (isLoading) {
+        return <Spinner />; 
+    }
+
     return (
         <div>
             <h2>Mis Rutinas</h2>
 
              {/* Si no hay rutinas, muestra un mensaje. Si hay, muéstralas */}
              {routines.length === 0 ? (
-                <p>No tienes ninguna rutina creada. ¡Añade una!</p>
+                <EmptyState 
+                    title="Crea tu Primera Rutina"
+                    message="Aquí aparecerán tus planes de entrenamiento. ¡Añade uno para empezar!"
+                />
              ) : (
                 <ul>
                     {routines.map(routine => (

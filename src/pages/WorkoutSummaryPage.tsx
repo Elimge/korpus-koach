@@ -4,23 +4,39 @@ import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { db } from '../services/db';
 import type { WorkoutSession } from '../types';
+import Spinner from '../components/Spinner';
+import toast from 'react-hot-toast';
 
 function WorkoutSummaryPage() {
     const { sessionId } = useParams<{ sessionId: string }>();
     const [session, setSession] = useState<WorkoutSession | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         const fetchSession = async () => {
-            if (sessionId) {
+            if (!sessionId) {
+                setIsLoading(false);
+                return;
+            }
+            try {
                 const sessionData = await db.getWorkoutSessionById(sessionId);
                 setSession(sessionData || null);
+            } catch (error) {
+                console.error("Error al cargar el resumen:", error);
+                toast.error("No se pudo cargar el resumen de la sesión.");
+            } finally {
+                setIsLoading(false); // 3. Desactiva el loading
             }
         };
         fetchSession();
     }, [sessionId]);
 
+    if (isLoading) {
+        return <Spinner />;
+    }
+
     if (!session) {
-        return <div>Cargando resumen...</div>;
+        return <div>Resumen de sesión no encontrado.</div>;
     }
 
     const durationInMinutes = session.endTime

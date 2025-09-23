@@ -5,20 +5,30 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import type { Routine, WorkoutDay } from '../types';
 import { db } from '../services/db';
 import CreateWorkoutDayForm from '../components/CreateWorkoutDayForm';
+import Spinner from '../components/Spinner';
+import EmptyState from '../components/EmptyState';
 import toast from 'react-hot-toast';
 
 function RoutineDetailPage() {
     // Se usa useParams para obtener el objeto de parámetros.
     const { routineId } = useParams<{ routineId: string }>();
     const [routine, setRoutine] = useState<Routine | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
     const [editingDayId, setEditingDayId] = useState<string | null>(null);
     const [editingDayName, setEditingDayName] = useState('');
     const navigate = useNavigate();
 
     const fetchRoutine = async () => {
-        if (routineId) {
-            const fetchedRoutine = await db.getRoutineById(routineId);
-            setRoutine(fetchedRoutine || null);
+        try {
+            if (routineId) {
+                const fetchedRoutine = await db.getRoutineById(routineId);
+                setRoutine(fetchedRoutine || null);
+            }
+        } catch (error) {
+            console.error('Error al cargar la rutina', error);
+            toast.error('No se pudieron cargar las rutinas.');
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -86,8 +96,18 @@ function RoutineDetailPage() {
         }
     };
 
+    if (isLoading) {
+        return <Spinner />;
+    }
+
     if (!routine) {
-        return <div>Rutina no encontrada o cargando...</div>;
+        return (
+            <div>
+                <h3>Rutina no encontrada</h3>
+                <p>Es posible que haya sido eliminado o el enlace sea incorrecto.</p>
+                <Link to="/">Volver a mis rutinas</Link>
+            </div>
+        );
     }
 
     return (
@@ -126,7 +146,10 @@ function RoutineDetailPage() {
                     ))}
                 </ul>
             ) : (
-                <p>Esta rutina todavía no tiene días de entrenamiento.</p>
+                <EmptyState
+                    title='Añade Días a tu Rutina'
+                    message='Una rutina se compone de días de entrenamiento. Añade uno para empezar a planificar tus ejercicios.'
+                />
             )}
 
             <hr /> 

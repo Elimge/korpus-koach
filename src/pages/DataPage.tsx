@@ -1,23 +1,35 @@
 // src/pages/DataPage.tsx
+
 import { useEffect, useState } from 'react';
 import { db } from '../services/db';
 import type { BodyWeightEntry, PersonalRecord } from '../types';
 import AddBodyWeightForm from '../components/AddBodyWeightForm';
 import BodyWeightChart  from '../components/charts/BodyWeightChart';
 import StrengthProgressChart from '../components/charts/StrengthProgressChart';
+import Spinner from '../components/Spinner';
+import EmptyState from '../components/EmptyState';
+import toast from 'react-hot-toast';
 
 function DataPage() {
     const [history, setHistory] = useState<BodyWeightEntry[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
     const [prs, setPrs] = useState<PersonalRecord[]>([]);
     const [selectedExerciseId, setSelectedExerciseId] = useState<string | null>(null);
     const [selectedPrHistory, setSelectedPrHistory] = useState<PersonalRecord[]>([]);
     const [selectedRepRange, setSelectedRepRange] = useState<number | null>(null);
 
     const fetchData = async () => {
-        const weightData = await db.getBodyWeightHistory();
-        const prData = await db.getAllPRs();
-        setHistory(weightData);
-        setPrs(prData);
+        try {
+            const weightData = await db.getBodyWeightHistory();
+            const prData = await db.getAllPRs();
+            setHistory(weightData);
+            setPrs(prData);
+        } catch (error) {
+            console.error('Error al cargar el historial', error);
+            toast.error('No se pudo cargar el historial.');
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     useEffect(() => {
@@ -48,6 +60,10 @@ function DataPage() {
         return acc;
     }, {} as Record<string, PersonalRecord[]>);
 
+    if (isLoading) {
+        return <Spinner />;
+    }
+
     return (
         <div>
             <h2>Mi Progreso</h2>
@@ -55,14 +71,15 @@ function DataPage() {
             <AddBodyWeightForm onWeightAdded={fetchData} />
 
             <hr />
-
+            
+            <h3>Evolución del Peso Corporal</h3>
             {history.length > 1 ? (
-                <>
-                    <h3>Evolución del Peso Corporal</h3>
-                    <BodyWeightChart data={history} /> 
-                </>
+                <BodyWeightChart data={history} /> 
             ) : (
-                <p>Necesitas al menos dos registros para ver un gráfico de evolución.</p>
+                <EmptyState 
+                    title="Gráfico de Evolución"
+                    message="Necesitas al menos dos registros de peso corporal para que podamos dibujar tu progreso."
+                />
             )}
 
             <h3>Historial de Peso Corporal</h3>
@@ -75,7 +92,10 @@ function DataPage() {
                     ))}
                 </ul>
             ) : (
-                <p>No hay registros de peso corporal</p>
+                <EmptyState 
+                    title="Registra tu Peso"
+                    message="Aquí aparecerá tu historial de peso corporal. ¡Añade tu primer registro para empezar!"
+                />
             )}
             <hr /> 
 
@@ -95,7 +115,10 @@ function DataPage() {
                     </div>
                 ))
             ) : (
-                <p>¡Completa algunas series para empezar a registrar tus récords!</p>
+                <EmptyState
+                    title='Registra tus Récords'
+                    message='Cuando completes una serie y superes tu marca anterior, tus récords personales aparecerán aquí.'
+                />
             )}
             <hr /> 
 
@@ -136,7 +159,10 @@ function DataPage() {
                     )}
                 </div>
             ) : (
-                <p>Registra algunos PRs para ver tu progreso.</p>
+                <EmptyState
+                    title='Gráfico de Progreso'
+                    message='Para visualizar tu progreso, primero necesitas registrar algunos récords personales.'
+                />
             )}
         </div>
     );

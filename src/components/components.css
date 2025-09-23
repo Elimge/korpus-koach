@@ -66,3 +66,39 @@ nav a.active {
     color: var(--primary-color);
     border-bottom: 2px solid var(--primary-color);
 }
+
+.spinner {
+    border: 4px solid rgba(0, 0, 0, 0.1);
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border-left-color: var(--primary-color);
+    animation: spin 1s ease infinite;
+    margin: 2remm auto; /* Para centrarlo */
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    border: 2px dashed #ddd;
+    border-radius: 8px;
+    margin: 2rem 0;
+}
+
+.empty-state h3 {
+    font-size: 1.25rem;
+    margin-bottom: 0.5rem;
+}
+
+.empty-state p {
+    color: var(--secondary-color);
+}
