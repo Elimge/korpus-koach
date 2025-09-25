@@ -56,7 +56,7 @@ nav {
 
 nav a {
     text-decoration: none;
-    color: var(--secondary-color);
+    color: var(--link-color);
     font-weight: bold;
     padding-bottom: 4px;
 }
