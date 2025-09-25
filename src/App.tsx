@@ -2,6 +2,7 @@
 
 import { Outlet, NavLink } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
+import ThemeSwitcher from './components/ThemeSwitcher';
 
 function App() {
   return (
@@ -12,6 +13,7 @@ function App() {
         
         <header>
           <h1>Korpus Koach</h1>
+          <ThemeSwitcher /> 
           {/* Aquí iría un componente de Navegación en el futuro */}
         </header>
 

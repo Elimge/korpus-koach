@@ -1,6 +1,7 @@
 /* src/index.css */
 
-/* Reset Básico y Configuración de Box-Sizing */ 
+/* Definición de las Paletas de Colores */
+/* Tema Claro (por defecto) */
 :root {
     --primary-color: #4a4e69;
     --secondary-color: #9a8c98;
@@ -8,8 +9,35 @@
     --text-color: #22223b;
     --container-bg: #ffffff;
     --danger-color: #c94c4c;
+    --border-color: #eee;
+    --link-color: #6d6875;
 }
 
+/* Tema Oscuro */ 
+[data-theme='dark'] {
+    --primary-color: #9a8c98;
+    --secondary-color: #c9ada7;
+    --background-color: #22223b; 
+    --text-color: #f2e9e4;
+    --container-bg: #4a4e69;
+    --danger-color: #e57373;
+    --border-color: #5b5f97;
+    --link-color: #f2e9e4;
+}
+
+/* Tema Goku */ 
+[data-theme='goku'] {
+    --primary-color: #F87D09;
+    --secondary-color: #005A8D;
+    --background-color: #f2e9e4;
+    --text-color: #22223b;
+    --container-bg: #ffffff;
+    --danger-color: #c94c4c;
+    --border-color: #eee;
+    --link-color: #005A8D;
+}
+
+/* Reset Básico y Estilos Globales que usan las variables */
 *, *::before, *::after {
     box-sizing: border-box;
     margin: 0;
@@ -20,6 +48,7 @@ body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     background-color: var(--background-color);
     color: var(--text-color);
+    transition: background-color 0.3s, color 0.3s; /* Transición suave */
 }
 
 /* Layout principal de la Aplicación */
@@ -30,6 +59,7 @@ body {
     background-color: var(--container-bg);
     border-radius: 8px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s;
 }
 
 .rest-timer-overlay {
