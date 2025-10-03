@@ -91,19 +91,28 @@
     font-size: 0.7rem;
 }
 
+.stats-panel {
+    padding: 2rem;
+  /* En móvil, por defecto, se apilará debajo del contenido principal */
+}
 
 /* --- Desktop Layout (Con Media Query) --- */
 @media (min-width: 1024px) {
     .app-layout {
         display: grid;
         /* La magia: una columna para el sidebar, el resto para el contenido */
-        grid-template-columns: 280px 1fr;
+        grid-template-columns: 280px 1fr 320px;
         min-height: 100vh;
     }
 
     .sidebar {
         display: flex;
         flex-direction: column;
+        border-right: 1px solid var(--border-color); /* Separador visual */
+    }
+
+    .stats-panel {
+        border-left: 1px solid var(--border-color); /* Separador visual */
     }
 
     /* Eliminamos el #root que teníamos antes para que el layout ocupe toda la pantalla */

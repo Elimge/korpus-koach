@@ -37,7 +37,7 @@ export interface Routine {
     id: string; 
     name: string;
     days: WorkoutDay[];
-    isActive: boolean; 
+    isActive: 'true' |'false'; 
 }
 
 // Hereda las propiedades de la plantilla (WorkouSet) pero añade los datos reales.

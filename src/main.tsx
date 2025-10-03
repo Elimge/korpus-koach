@@ -11,6 +11,7 @@ import WorkoutDayPage from './pages/WorkoutDayPage.tsx';
 import './index.css';
 import './layouts/AppLayout.css';
 import './components/components.css';
+import './components/widgets/Widgets.css';
 import WorkoutSessionPage from './pages/WorkoutSessionPage.tsx';
 import DataPage from './pages/DataPage.tsx';
 import WorkoutSummaryPage from './pages/WorkoutSummaryPage.tsx';
