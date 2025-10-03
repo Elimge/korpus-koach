@@ -1,9 +1,8 @@
 /* src/index.css */
 
-/* Definición de las Paletas de Colores */
 /* Tema Claro (por defecto) */
 :root {
-    --primary-color: #4a4e69;
+    --primary-color: #4a4e69; /* Color base estructural */
     --secondary-color: #9a8c98;
     --background-color: #f2e9e4;
     --text-color: #22223b;
@@ -11,30 +10,25 @@
     --danger-color: #c94c4c;
     --border-color: #eee;
     --link-color: #6d6875;
+    --accent-color: var(--primary-color); /* Por defecto, el acento es el color primario */
 }
 
 /* Tema Oscuro */ 
 [data-theme='dark'] {
-    --primary-color: #9a8c98;
-    --secondary-color: #c9ada7;
-    --background-color: #22223b; 
-    --text-color: #f2e9e4;
-    --container-bg: #4a4e69;
+    --primary-color: #3d348b;   /* Morado oscuro para estructura */
+    --secondary-color: #9a8c98;
+    --background-color: #1a1a2e; /* Casi negro azulado */
+    --text-color: #e0e0e0;
+    --container-bg: #16213e;    /* Contenedor ligeramente más claro */
     --danger-color: #e57373;
-    --border-color: #5b5f97;
-    --link-color: #f2e9e4;
+    --border-color: #2a2a4e;
+    --link-color: #c9ada7;
+    --accent-color: #7b2cbf;   /* Acento morado vibrante de Gengar */
 }
 
-/* Tema Goku */ 
-[data-theme='goku'] {
-    --primary-color: #F87D09;
-    --secondary-color: #005A8D;
-    --background-color: #f2e9e4;
-    --text-color: #22223b;
-    --container-bg: #ffffff;
-    --danger-color: #c94c4c;
-    --border-color: #eee;
-    --link-color: #005A8D;
+/* Selector para el acento Goku */
+[data-accent='goku'] {
+  --accent-color: #F87D09; /* Naranja Saiyan */
 }
 
 /* Reset Básico y Estilos Globales que usan las variables */
@@ -61,6 +55,31 @@ body {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     transition: background-color 0.3s;
 } */
+
+/* Botones principales y spinner */
+button, .spinner {
+  background-color: var(--accent-color);
+}
+.spinner {
+  border-left-color: var(--accent-color);
+  background-color: transparent; /* El spinner no debe tener fondo */
+}
+
+button:hover {
+  filter: brightness(1.2); /* Una forma genérica de hacer hover */
+}
+
+/* Enlaces activos en ambas navegaciones */
+nav a.active, .sidebar-nav a.active {
+  color: var(--accent-color);
+  border-bottom-color: var(--accent-color); /* Para nav superior */
+  background-color: var(--accent-color); /* Para sidebar */
+  color: white; /* Asegura contraste en el sidebar */
+}
+
+.avatar {
+  background-color: var(--accent-color);
+}
 
 .rest-timer-overlay {
     position: fixed;
