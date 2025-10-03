@@ -459,6 +459,22 @@ export class KorpusKoachDB extends Dexie {
 
     return completedSessions.map(session => session.startTime);
   }
+
+  async getActiveRoutine(): Promise<Routine | undefined> {
+    // indice 'isActive' para busqueda eficiente y .first() para obtener solo el primer resultado
+    return await this.routines.where('isActive').equals('true').first(); 
+  }
+
+  async setActiveRoutine(routineId: string): Promise<void> {
+    await this.transaction('rw', this.routines, async () => {
+        // 1. Pone todas las rutinas a 'false'
+        await this.routines.toCollection().modify({ isActive: 'false' });
+        // 2. Pone la rutina seleccionada a 'true'
+        await this.routines.update(routineId, { isActive: 'true' });
+
+    });
+    toast.success("Rutina activada.");
+  }
 }
 
 // Se crea una única instancia a la base de datos y se exporta.

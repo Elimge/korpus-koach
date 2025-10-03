@@ -2,6 +2,7 @@
 
 import { Outlet } from 'react-router-dom';
 import Sidebar from './Sidebar';
+import StatsPanel from './StatsPanel';
 import './AppLayout.css';
 
 function AppLayout() {
@@ -11,7 +12,7 @@ function AppLayout() {
             <main className="main-content">
                 <Outlet />
             </main>
-            {/* La columna de estadísticas la añadiremos más tarde para simplificar */}
+            <StatsPanel /> 
         </div>
     ); 
 }

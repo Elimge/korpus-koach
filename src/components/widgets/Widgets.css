@@ -1,0 +1,23 @@
+/* src/components/widgets/Widgets.css */
+
+.widget {
+    background-color: var(--background-color);
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+}
+
+.widget h4 {
+    margin-bottom: 1rem;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 0.5rem;
+}
+
+.weekly-routine-list {
+    list-style: none;
+    padding: 0;
+}
+
+.weekly-routine-list li {
+    padding: 0.5rem 0;
+} 

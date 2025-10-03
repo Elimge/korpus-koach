@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
 import type { Routine } from '../types';
 import { db } from '../services/db';
 import CreateRoutineForm from '../components/CreateRoutineForm';
-import toast from 'react-hot-toast'; 
+import toast from 'react-hot-toast';
 import Spinner from '../components/Spinner';
 import EmptyState from '../components/EmptyState';
 
@@ -71,7 +71,7 @@ function HomePage() {
                         toast.dismiss(t.id); // Cierra esta notificación
                         // toast.promise para manejar la operación de borrado
                         toast.promise(
-                           (async () => {
+                            (async () => {
                                 if (!id) throw new Error('ID de rutina no encontrado.')
                                 await db.deleteRoutine(id);
                                 await fetchRoutines();
@@ -82,15 +82,15 @@ function HomePage() {
                                 error: 'No se pudo eliminar.',   // Mensaje si la promesa es rechazada
                             }
                         );
-                    
+
                     }}
-                    style={{ marginLeft: '10px'}}
+                    style={{ marginLeft: '10px' }}
                 >
                     Confirmar
                 </button>
             </span>
         ));
-        
+
         // if (window.confirm('¿Seguro que quieres eliminar esta rutina y todo su historial? Esta acción es irreversible.')) {
         //     await db.deleteRoutine(id);
         //     fetchRoutines(); // Refresca la lista
@@ -105,30 +105,36 @@ function HomePage() {
     const handleSaveClick = async (id: string) => {
         await db.updateRoutineName(id, editingName);
         setEditingRoutineId(null); // Salir del modo edición 
-        fetchRoutines(); 
+        fetchRoutines();
     }
 
+    const handleSetActive = async (id: string) => {
+        await db.setActiveRoutine(id);
+        fetchRoutines(); // Refresca la lista para mostrar el nuevo estado
+    };
+
     if (isLoading) {
-        return <Spinner />; 
+        return <Spinner />;
     }
 
     return (
         <div>
             <h2>Mis Rutinas</h2>
 
-             {/* Si no hay rutinas, muestra un mensaje. Si hay, muéstralas */}
-             {routines.length === 0 ? (
-                <EmptyState 
+            {/* Si no hay rutinas, muestra un mensaje. Si hay, muéstralas */}
+            {routines.length === 0 ? (
+                <EmptyState
                     title="Crea tu Primera Rutina"
                     message="Aquí aparecerán tus planes de entrenamiento. ¡Añade uno para empezar!"
                 />
-             ) : (
+            ) : (
                 <ul>
                     {routines.map(routine => (
                         <li key={routine.id}>
                             {editingRoutineId === routine.id ? (
+                                // --- MODO EDICIÓN ---
                                 <>
-                                    <input 
+                                    <input
                                         type='text'
                                         value={editingName}
                                         onChange={(e) => setEditingName(e.target.value)}
@@ -138,28 +144,39 @@ function HomePage() {
                                     <button onClick={() => setEditingRoutineId(null)}>Cancelar</button>
                                 </>
                             ) : (
+                                // --- MODO VISUALIZACIÓN (INTEGRADO) ---
                                 <>
-                                    <Link to={`/routine/${routine.id}`}>{routine.name}</Link>
+                                    <Link to={`/routine/${routine.id}`}>
+                                        {routine.name}
+                                        {routine.isActive === 'true' && ' (Activa)'}
+                                    </Link>
+
+                                    <button
+                                        onClick={() => handleSetActive(routine.id)}
+                                        disabled={routine.isActive === 'true'}
+                                    >
+                                        Activar
+                                    </button>
+
                                     <button onClick={() => handleEditClick(routine)}>Editar</button>
-                                    <button onClick={() => handleDeleteRoutine(routine.id)} className='delete-btn'>Eliminar</button>
+                                    <button onClick={() => handleDeleteRoutine(routine.id)} className="delete-btn">
+                                        Eliminar
+                                    </button>
                                 </>
                             )}
-                            {/* <Link to={`/routine/${routine.id}`}>
-                                {routine.name}
-                            </Link> */}
                         </li>
                     ))}
                 </ul>
-             )}
+            )}
 
-             <hr />
+            <hr />
 
-             <CreateRoutineForm onRoutineCreated={fetchRoutines} />
+            <CreateRoutineForm onRoutineCreated={fetchRoutines} />
 
             {/* <p>Días de entrenamiento: </p>
             <ul>
                 {
-                     Las llaves se usan para poder escribir en javascript 
+                    Las llaves se usan para poder escribir en javascript 
                     el atributo "key" es crucial en React para identificar 
                     cada elemento de la lista de forma única y optimizar el renderizado 
                 }
