@@ -449,6 +449,16 @@ export class KorpusKoachDB extends Dexie {
       .where({ exerciseId })
       .sortBy('date');
   }
+
+  async getCompletedSessionDates(): Promise<Date[]> {
+    // Usando el indice 'status' para busqueda rapida 
+    const completedSessions = await this.workoutSessions
+    .where('status')
+    .equals('completed')
+    .toArray();
+
+    return completedSessions.map(session => session.startTime);
+  }
 }
 
 // Se crea una única instancia a la base de datos y se exporta.

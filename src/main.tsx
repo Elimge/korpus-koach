@@ -9,11 +9,13 @@ import HomePage from './pages/HomePage.tsx';
 import RoutineDetailPage from './pages/RoutineDetailPage.tsx';
 import WorkoutDayPage from './pages/WorkoutDayPage.tsx';
 import './index.css';
-import './components/components.css'
+import './layouts/AppLayout.css';
+import './components/components.css';
 import WorkoutSessionPage from './pages/WorkoutSessionPage.tsx';
 import DataPage from './pages/DataPage.tsx';
 import WorkoutSummaryPage from './pages/WorkoutSummaryPage.tsx';
 import HistoryPage from './pages/HistoryPage.tsx';
+import DashboardPage from './pages/DashboardPage.tsx';
 import { ThemeProvider } from './context/ThemeContext.tsx';
 
 // Crear el enrutador
@@ -25,7 +27,11 @@ const router = createBrowserRouter([
     children: [
       {
         index: true, // Esto la hace ruta por defecto del padre
-        element: <HomePage /> 
+        element: <DashboardPage /> 
+      },
+      {
+        path: "routines", 
+        element: <HomePage />
       },
       {
         path: "routine/:routineId", 

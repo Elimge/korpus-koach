@@ -1,0 +1,118 @@
+/* src/layouts/AppLayout.css */
+
+/* --- Mobile-First (Por defecto) --- */
+.app-layout {
+    /* En móvil, el sidebar está oculto por ahora. Lo mostraremos con un botón. */
+}
+
+.sidebar {
+    background-color: var(--container-bg);
+    padding: 1.5rem;
+    border-right: 1px solid var(--border-color);
+}
+
+.sidebar-header h2 {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.user-profile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+}
+
+.avatar {
+    height: 60px;
+    border-radius: 50%;
+    background-color: var(--primary-color);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    font-weight: bold;
+    width: 60px;
+}
+
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.sidebar-nav a {
+    font-weight: bold;
+    font-size: 1.1rem;
+    padding: 10px;
+    border-radius: 6px;
+    color: var(--secondary-color);
+    transition: background-color 0.2s, color 0.2s;
+    text-decoration: none;
+}
+
+.sidebar-nav a:hover {
+    background-color: var(--background-color);
+}
+
+.sidebar-nav a.active {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.sidebar-footer {
+    margin-top: auto;
+    /* Empuja el footer hacia abajo */
+    padding-top: 2rem;
+}
+
+.main-content {
+    padding: 2rem;
+}
+
+.react-calendar {
+    border: none;
+    border-radius: 8px;
+}
+.react-calendar__month-view__days__day--weekend abbr {
+    color: var(--secondary-color);
+}
+
+.react-calendar__tile--now {
+    background: #e6f7ff; /* Color para resaltar el día de hoy (ejemplo) */
+}
+
+.workout-check {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    font-size: 0.7rem;
+}
+
+
+/* --- Desktop Layout (Con Media Query) --- */
+@media (min-width: 1024px) {
+    .app-layout {
+        display: grid;
+        /* La magia: una columna para el sidebar, el resto para el contenido */
+        grid-template-columns: 280px 1fr;
+        min-height: 100vh;
+    }
+
+    .sidebar {
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* Eliminamos el #root que teníamos antes para que el layout ocupe toda la pantalla */
+    #root {
+        max-width: none;
+        margin: 0;
+        padding: 0;
+        border-radius: 0;
+        box-shadow: none;
+        background-color: transparent;
+    }
+}
