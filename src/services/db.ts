@@ -77,7 +77,7 @@ export class KorpusKoachDB extends Dexie {
     });
     this.version(7).stores({
       // Redefinición de esquema 
-      routine: 'id, isActive',
+      routines: 'id, isActive',
       workoutSessions: 'id, status, routineId, startTime',
       bodyWeights: 'id, date',
       personalRecords: 'id, exerciseId'

@@ -3,12 +3,14 @@
 // Importar el tipo de Routine desde el archivo de tipos
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { FaPen, FaTrash } from 'react-icons/fa';
 import type { Routine } from '../types';
 import { db } from '../services/db';
 import CreateRoutineForm from '../components/CreateRoutineForm';
 import toast from 'react-hot-toast';
 import Spinner from '../components/Spinner';
 import EmptyState from '../components/EmptyState';
+
 
 // Dato de prueba (mock data)
 // const mockActiveRoutine: Routine = {
@@ -128,45 +130,45 @@ function HomePage() {
                     message="Aquí aparecerán tus planes de entrenamiento. ¡Añade uno para empezar!"
                 />
             ) : (
-                <ul>
+                <div className="routines-list">
                     {routines.map(routine => (
-                        <li key={routine.id}>
+                        <div key={routine.id} className="card">
                             {editingRoutineId === routine.id ? (
                                 // --- MODO EDICIÓN ---
-                                <>
+                                <div className="card-header">
                                     <input
                                         type='text'
                                         value={editingName}
                                         onChange={(e) => setEditingName(e.target.value)}
                                         autoFocus
                                     />
-                                    <button onClick={() => handleSaveClick(routine.id)}>Guardar</button>
-                                    <button onClick={() => setEditingRoutineId(null)}>Cancelar</button>
-                                </>
+                                    <div className="card-actions">
+                                        <button onClick={() => handleSaveClick(routine.id)}>Guardar</button>
+                                        <button onClick={() => setEditingRoutineId(null)}>Cancelar</button>
+                                    </div>
+                                </div>
                             ) : (
-                                // --- MODO VISUALIZACIÓN (INTEGRADO) ---
-                                <>
-                                    <Link to={`/routine/${routine.id}`}>
-                                        {routine.name}
-                                        {routine.isActive === 'true' && ' (Activa)'}
-                                    </Link>
-
-                                    <button
-                                        onClick={() => handleSetActive(routine.id)}
-                                        disabled={routine.isActive === 'true'}
-                                    >
-                                        Activar
-                                    </button>
-
-                                    <button onClick={() => handleEditClick(routine)}>Editar</button>
-                                    <button onClick={() => handleDeleteRoutine(routine.id)} className="delete-btn">
-                                        Eliminar
-                                    </button>
-                                </>
+                                // --- MODO VISUALIZACIÓN ---
+                                <div className="card-header">
+                                    <h3>{routine.name} {routine.isActive && <span className="active-badge">(Activa)</span>}</h3>
+                                    <div className="card-actions">
+                                        <button onClick={() => handleSetActive(routine.id)} disabled={routine.isActive === 'true'}>
+                                            Activar
+                                        </button>
+                                        <button onClick={() => handleEditClick(routine)} className="icon-button">
+                                            <FaPen />
+                                        </button>
+                                        <button onClick={() => handleDeleteRoutine(routine.id)} className="icon-button delete">
+                                            <FaTrash />
+                                        </button>
+                                    </div>
+                                </div>
                             )}
-                        </li>
+                            {/* El cuerpo de la tarjeta, visible en ambos modos */}
+                            <Link to={`/routine/${routine.id}`}>Gestionar Días y Ejercicios &rarr;</Link>
+                        </div>
                     ))}
-                </ul>
+                </div>
             )}
 
             <hr />

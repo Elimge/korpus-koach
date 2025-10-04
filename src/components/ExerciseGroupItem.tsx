@@ -5,6 +5,7 @@ import CreateSetForm from './CreateSetForm';
 import TemplateSetItem from './TemplateSetItem';
 import { db } from '../services/db';
 import toast from 'react-hot-toast';
+import { FaPen, FaTrash } from 'react-icons/fa';
 
 interface ExerciseGroupItemProps {
     group: ExerciseGroup;
@@ -108,9 +109,15 @@ function ExerciseGroupItem({
                                             onChange={() => onSelectExercise(exercise.id)}
                                         />
                                         <span>{exercise.name} ({exercise.restTime}s)</span>
-                                        <div>
-                                            <button onClick={() => onEditClick(exercise)}>Editar</button>
-                                            <button onClick={() => onDeleteClick(exercise.id)} className='delete-btn'>Eliminar</button>
+
+                                        {/* --- BLOQUE A REEMPLAZAR --- */}
+                                        <div className="card-actions">
+                                            <button onClick={(e) => { e.preventDefault(); onEditClick(exercise); }} className="icon-button">
+                                                <FaPen />
+                                            </button>
+                                            <button onClick={(e) => { e.preventDefault(); onDeleteClick(exercise.id); }} className="icon-button delete">
+                                                <FaTrash />
+                                            </button>
                                         </div>
                                     </div>
                                 </summary>

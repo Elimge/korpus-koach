@@ -8,6 +8,7 @@ import CreateWorkoutDayForm from '../components/CreateWorkoutDayForm';
 import Spinner from '../components/Spinner';
 import EmptyState from '../components/EmptyState';
 import toast from 'react-hot-toast';
+import { FaPen, FaTrash } from 'react-icons/fa';
 
 function RoutineDetailPage() {
     // Se usa useParams para obtener el objeto de parámetros.
@@ -44,7 +45,7 @@ function RoutineDetailPage() {
                 // Se usa navigate para redirigir al usuario a la nueva página 
                 navigate(`/session/${newSessionId}`);
             } catch (error) {
-                console.error('No se pudo iniciar la sesión: ', error); 
+                console.error('No se pudo iniciar la sesión: ', error);
                 alert('Error al iniciar la sesión.');
             }
         }
@@ -59,7 +60,7 @@ function RoutineDetailPage() {
                         toast.dismiss(t.id); // Cierra esta notificación
                         // toast.promise para manejar la operación de borrado
                         toast.promise(
-                           (async () => {
+                            (async () => {
                                 if (!routineId) throw new Error("ID de rutina no encontrado.")
                                 await db.deleteWorkoutDay(routineId, dayId);
                                 await fetchRoutine();
@@ -71,7 +72,7 @@ function RoutineDetailPage() {
                             }
                         );
                     }}
-                    style={{ marginLeft: '10px'}}
+                    style={{ marginLeft: '10px' }}
                 >
                     Confirmar
                 </button>
@@ -113,38 +114,47 @@ function RoutineDetailPage() {
     return (
         <div>
             {/* Añadimos un enlace para volver a la página principal */}
-            <Link to="/">&larr; Volver a Mis Rutinas</Link>
+            <Link to="/routines">&larr; Volver a Mis Rutinas</Link>
 
             <h2>{routine.name}</h2>
 
             {routine.days.length > 0 ? (
-                <ul>
+                <div className="days-list">
                     {routine.days.map(day => (
-                        <li key={day.id}>
+                        <div key={day.id} className="card">
                             {editingDayId === day.id ? (
-                                <>
+                                // --- MODO EDICIÓN ---
+                                <div className="card-header">
                                     <input
                                         type='text'
                                         value={editingDayName}
                                         onChange={(e) => setEditingDayName(e.target.value)}
                                         autoFocus
-                                    /> 
-                                    <button onClick={() => handleSaveDayClick(day.id)}>Guardar</button>
-                                    <button onClick={() => setEditingDayId(null)}>Cancelar</button>
-                                </>
-                            ) : (
-                                <>
-                                    <Link to={`/routine/${routine.id}/day/${day.id}`}>{day.name}</Link>
-                                    <div>
-                                        <button onClick={() => handleStartWorkout(day.id)}>¡Empezar Entrenamiento!</button>
-                                        <button onClick={() => handleEditDayClick(day)}>Editar</button>
-                                        <button onClick={() => handleDeleteDay(day.id)} className='delete-btn'>Eliminar</button>
+                                    />
+                                    <div className="card-actions">
+                                        <button onClick={() => handleSaveDayClick(day.id)}>Guardar</button>
+                                        <button onClick={() => setEditingDayId(null)}>Cancelar</button>
                                     </div>
-                                </>
+                                </div>
+                            ) : (
+                                // --- MODO VISUALIZACIÓN ---
+                                <div className="card-header">
+                                    <h3>{day.name}</h3>
+                                    <div className="card-actions">
+                                        <button onClick={() => handleStartWorkout(day.id)}>Empezar</button>
+                                        <button onClick={() => handleEditDayClick(day)} className="icon-button">
+                                            <FaPen />
+                                        </button>
+                                        <button onClick={() => handleDeleteDay(day.id)} className="icon-button delete">
+                                            <FaTrash />
+                                        </button>
+                                    </div>
+                                </div>
                             )}
-                        </li>
+                            <Link to={`/routine/${routine.id}/day/${day.id}`}>Gestionar Ejercicios &rarr;</Link>
+                        </div>
                     ))}
-                </ul>
+                </div>
             ) : (
                 <EmptyState
                     title='Añade Días a tu Rutina'
@@ -152,7 +162,7 @@ function RoutineDetailPage() {
                 />
             )}
 
-            <hr /> 
+            <hr />
 
             {routineId && (
                 <CreateWorkoutDayForm

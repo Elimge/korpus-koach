@@ -25,28 +25,32 @@ function HistoryPage() {
             }
         };
         fetchSessions();
-    }, []); 
+    }, []);
 
     if (isLoading) {
         return <Spinner />;
     }
- 
+
     return (
         <div>
             <h2>Historial de Entrenamiento</h2>
-            {sessions.length > 0 ? ( 
-                <ul>
+            {sessions.length > 0 ? (
+                <div className="history-list">
                     {sessions.map(session => (
-                        <li key={session.id}>
-                            <span>
-                                {new Date(session.startTime).toLocaleDateString('es-ES', {
-                                    year: 'numeric', month: 'long', day: 'numeric'
-                                })}
-                            </span>
-                            <Link to={`/session/${session.id}/summary`}>Ver Resumen</Link>
-                        </li>
+                        <div key={session.id} className="card">
+                            <div className="card-header">
+                                <h3>
+                                    {new Date(session.startTime).toLocaleDateString('es-ES', {
+                                        year: 'numeric', month: 'long', day: 'numeric'
+                                    })}
+                                </h3>
+                                <div className="card-actions">
+                                    <Link to={`/session/${session.id}/summary`}>Ver Resumen</Link>
+                                </div>
+                            </div>
+                        </div>
                     ))}
-                </ul>
+                </div>
             ) : (
                 <EmptyState
                     title='Tu Historial de Entrenamientos'
