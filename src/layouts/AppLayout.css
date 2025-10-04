@@ -73,9 +73,19 @@
 }
 
 .react-calendar {
-    border: none;
-    border-radius: 8px;
+  border: none;
+  border-radius: 8px;
+  background-color: var(--container-bg); /* Asegura que el fondo coincida con el tema */
+  padding: 1rem;
 }
+
+/* Estilos para los nombres de los días de la semana */
+.react-calendar__month-view__weekdays__weekday abbr {
+  text-decoration: none;
+  font-weight: bold;
+  color: var(--text-color); /* Usa el color de texto del tema */
+}
+
 .react-calendar__month-view__days__day--weekend abbr {
     color: var(--secondary-color);
 }

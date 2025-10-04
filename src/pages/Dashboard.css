@@ -1,0 +1,30 @@
+/* src/pages/Dashboard.css */
+
+.dashboard .react-calendar {
+  border: none;
+  border-radius: 8px;
+  padding: 1rem;
+  background-color: var(--container-bg);
+}
+
+.dashboard .react-calendar__month-view__weekdays__weekday abbr {
+  text-decoration: none;
+  font-weight: bold;
+  color: var(--text-color);
+}
+
+.dashboard .react-calendar__month-view__days__day--weekend abbr {
+  color: var(--secondary-color) !important; /* Usamos !important para asegurar la victoria */
+}
+
+.dashboard .react-calendar__tile--now {
+  background-color: var(--background-color);
+  border-radius: 6px;
+}
+
+.dashboard .workout-check {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  font-size: 0.7rem;
+}

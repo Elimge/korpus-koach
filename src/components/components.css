@@ -1,6 +1,55 @@
 /* src/components/components.css */
 
-/* --- Estilos para Botones --- */
+/* --- Estructura de Tarjetas --- */
+.card {
+    background-color: var(--container-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.card-header h3 {
+    margin: 0;
+}
+
+.card-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+/* --- Botones de Iconos --- */
+.icon-button {
+    background-color: transparent;
+    color: var(--secondary-color);
+    border: none;
+    padding: 0.5rem;
+    border-radius: 50%;
+    font-size: 1.2rem;
+    /* Hace el icono más grande */
+}
+
+.icon-button:hover {
+    background-color: var(--background-color);
+    color: var(--primary-color);
+}
+
+.icon-button.delete:hover {
+    color: var(--danger-color);
+}
+
+/*
+--- Estilos para Botones ---
 button {
     background-color: var(--primary-color);
     color: white;
@@ -11,10 +60,14 @@ button {
     font-weight: bold;
     transition: background-color 0.2s ease;
     margin: 0 4px;
+    display: inline-flex; 
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem; 
 }
 
 button:hover {
-    background-color: #3b3e56; /* Un tono más oscuro de --primary color */
+    background-color: #3b3e56; 
 }
 
 button[disabled] {
@@ -22,7 +75,7 @@ button[disabled] {
     cursor: not-allowed;
 }
 
-/* Botón de eliminar con un color de peligro */ 
+
 button.delete-btn {
     background-color: var(--danger-color);
 }
@@ -30,7 +83,7 @@ button.delete-btn:hover {
     background-color: #a53c3c;
 }
 
-/* --- Estilos para Formularios --- */
+
 form {
     margin-top: 1rem;
     padding: 1rem;
@@ -45,7 +98,7 @@ input[type='text'], input[type='number'], select {
     margin: 0 8px;
 }
 
-/* --- Estilos para la Navegación --- */ 
+
 nav {
     display: flex;
     gap: 1.5rem;
@@ -61,7 +114,7 @@ nav a {
     padding-bottom: 4px;
 }
 
-/* Estilo para el enlace activo que NavLink añade automáticamente */
+
 nav a.active {
     color: var(--primary-color);
     border-bottom: 2px solid var(--primary-color);
@@ -74,7 +127,7 @@ nav a.active {
     border-radius: 50%;
     border-left-color: var(--primary-color);
     animation: spin 1s ease infinite;
-    margin: 2remm auto; /* Para centrarlo */
+    margin: 2remm auto; 
 }
 
 @keyframes spin {
@@ -102,3 +155,25 @@ nav a.active {
 .empty-state p {
     color: var(--secondary-color);
 }
+
+ul, li {
+    list-style: none; 
+    padding: 0;
+}
+
+a {
+    text-decoration: none;
+    color: var(--accent-color);
+    font-weight: 500;
+    transition: opacity 0.2s ease;
+}
+a:hover {
+    opacity: 0.8;
+}
+
+details > summary {
+  list-style: none; 
+}
+details > summary::-webkit-details-marker {
+  display: none; 
+}*/

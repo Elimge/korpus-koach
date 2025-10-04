@@ -5,6 +5,7 @@ import Calendar from 'react-calendar';
 import { db } from '../services/db';
 import Spinner from '../components/Spinner';
 import 'react-calendar/dist/Calendar.css'; 
+import './Dashboard.css'; 
 
 function DashboardPage() {
     const [completedDates, setCompletedDates] = useState<Date[]>([]);
